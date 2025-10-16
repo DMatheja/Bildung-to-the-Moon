@@ -7,10 +7,8 @@ import java.awt.event.ActionEvent;
  * - Start Game: opens a placeholder game window (replace with your game later).
  * - Settings: simple dialog for future settings.
  * - Quit: exits the app.
- *
- * Save as Launcher.java and run with: javac Launcher.java && java Launcher
  */
-public class main {
+public class Launcher {
     private final JFrame frame;
 
     public Launcher() {
@@ -42,8 +40,8 @@ public class main {
         settingsBtn.addActionListener(this::onSettings);
         buttons.add(settingsBtn);
 
-        JButton quitBtn = new JButton("Quit");
-        quitBtn.addActionListener(e -> onQuit());
+    JButton quitBtn = new JButton("Quit");
+    quitBtn.addActionListener(e -> onQuit());
         buttons.add(quitBtn);
 
         panel.add(buttons, BorderLayout.CENTER);
