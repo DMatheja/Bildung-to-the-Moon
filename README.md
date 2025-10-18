@@ -9,3 +9,9 @@ setup GitHub inside your VSCode!
 clone this repo.
 
 Download latest JDK (Java Development Kit)
+
+Get some hot or cold [drink of your choice] and get coding.
+
+for running the compiled Java Code
+-
+You just need java installed
