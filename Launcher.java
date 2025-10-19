@@ -208,7 +208,6 @@ public class Launcher {
             double parallaxFactor;
             int size;
             Star(int panelWidth, int panelHeight) {
-                // KORREKTUR: Sterne werden jetzt in einem 20x größeren vertikalen Bereich platziert.
                 super(Math.random() * panelWidth, (Math.random() * panelHeight * 20) - (panelHeight * 10)); 
                 this.parallaxFactor = 0.001; // Far: close to 0
                 this.size = (int)(Math.random() * 2 + 3); // Bigger stars
@@ -424,8 +423,28 @@ public class Launcher {
                 if (gridX < GRID_WIDTH && gridY < GRID_HEIGHT) {
                     RocketPart partToRemove = grid[gridX][gridY];
                     if (partToRemove != null) {
-                        playerMoney += partToRemove.type.cost; grid[gridX][gridY] = null;
-                        placedParts.remove(partToRemove); recalculateStages(); repaint();
+                        int mirroredX = (GRID_WIDTH - 1) - gridX;
+                        boolean isCenter = (gridX == mirroredX);
+
+                        if (isCenter) {
+                            playerMoney += partToRemove.type.cost;
+                            grid[gridX][gridY] = null;
+                            placedParts.remove(partToRemove);
+                        } else {
+                            RocketPart mirroredPart = grid[mirroredX][gridY];
+
+                            playerMoney += partToRemove.type.cost;
+                            grid[gridX][gridY] = null;
+                            placedParts.remove(partToRemove);
+
+                            if (mirroredPart != null) {
+                                playerMoney += mirroredPart.type.cost;
+                                grid[mirroredX][gridY] = null;
+                                placedParts.remove(mirroredPart);
+                            }
+                        }
+                        recalculateStages(); 
+                        repaint();
                     }
                 }
             }
@@ -457,18 +476,43 @@ public class Launcher {
         }
 
         private void tryPlacePart(int gridX, int gridY) {
-            if (selectedPartType == null || playerMoney < selectedPartType.cost || grid[gridX][gridY] != null) return;
-            if (isPlacementLegal(selectedPartType, gridX, gridY)) {
-                playerMoney -= selectedPartType.cost;
-                RocketPart newPart = new RocketPart(selectedPartType, gridX, gridY);
-                grid[gridX][gridY] = newPart; 
-                placedParts.add(newPart); 
-                recalculateStages();
+            if (selectedPartType == null || grid[gridX][gridY] != null) return;
+        
+            int mirroredX = (GRID_WIDTH - 1) - gridX;
+            boolean isCenter = (gridX == mirroredX);
+        
+            if (isCenter) {
+                if (playerMoney >= selectedPartType.cost && isPlacementLegal(selectedPartType, gridX, gridY)) {
+                    playerMoney -= selectedPartType.cost;
+                    RocketPart newPart = new RocketPart(selectedPartType, gridX, gridY);
+                    grid[gridX][gridY] = newPart;
+                    placedParts.add(newPart);
+                    recalculateStages();
+                }
+            } else {
+                if (playerMoney < selectedPartType.cost * 2 || grid[mirroredX][gridY] != null) return;
+        
+                if (isPlacementLegal(selectedPartType, gridX, gridY) && isPlacementLegal(selectedPartType, mirroredX, gridY)) {
+                    playerMoney -= selectedPartType.cost * 2;
+        
+                    RocketPart part1 = new RocketPart(selectedPartType, gridX, gridY);
+                    grid[gridX][gridY] = part1;
+                    placedParts.add(part1);
+        
+                    RocketPart part2 = new RocketPart(selectedPartType, mirroredX, gridY);
+                    grid[mirroredX][gridY] = part2;
+                    placedParts.add(part2);
+        
+                    recalculateStages();
+                }
             }
         }
         
         private boolean isPlacementLegal(PartType partType, int x, int y) {
-            if (placedParts.isEmpty()) return partType == PartType.COCKPIT;
+            if (placedParts.isEmpty()) {
+                // The first part must be a cockpit and placed in the center column
+                return partType == PartType.COCKPIT && x == GRID_WIDTH / 2;
+            }
             
             boolean isAdjacent = (y > 0 && grid[x][y - 1] != null) || (y < GRID_HEIGHT - 1 && grid[x][y + 1] != null) ||
                                  (x > 0 && grid[x - 1][y] != null) || (x < GRID_WIDTH - 1 && grid[x + 1][y] != null);
@@ -537,11 +581,15 @@ public class Launcher {
         }
 
         private void explode() {
-            currentState = GameState.EXPLODED; double explosionX = 0, explosionY = 0; int activeCount = 0;
-            for(RocketPart p : placedParts) { if(!p.isDetached) { explosionX += p.worldX + (CELL_SIZE/2.0); explosionY += p.worldY + (CELL_SIZE/2.0); activeCount++; } }
-            if (activeCount > 0) {
-                explosionX /= activeCount; explosionY /= activeCount;
-                for(int i=0; i<200; i++) particles.add(new ExplosionParticle(explosionX, explosionY));
+            currentState = GameState.EXPLODED;
+            for (RocketPart p : placedParts) {
+                if (!p.isDetached) {
+                    double partCenterX = p.worldX + (CELL_SIZE / 2.0);
+                    double partCenterY = p.worldY + (CELL_SIZE / 2.0);
+                    for (int i = 0; i < 25; i++) {
+                        particles.add(new ExplosionParticle(partCenterX, partCenterY));
+                    }
+                }
             }
         }
         
@@ -638,7 +686,9 @@ public class Launcher {
                 }
 
                 if (timeSinceOutOfFuel > 1.0) {
-                    if (Math.abs(rocketVelY) < 100 && altitude > 80000) {
+                    if (altitude < 1000) {
+                        timeScale = 1.0; // Safety override near ground
+                    } else if (Math.abs(rocketVelY) < 100 && altitude > 80000) {
                         timeScale = 100.0; // Apogee in space
                     } else if (altitude > 100000) {
                         timeScale = 50.0; // High space flight
@@ -648,10 +698,8 @@ public class Launcher {
                         timeScale = 10.0; // Upper atmosphere
                     } else if (altitude > 5000) {
                         timeScale = 5.0; // Mid atmosphere
-                    } else if (altitude > 1000) {
-                        timeScale = 2.0; // Low atmosphere
                     } else {
-                        timeScale = 1.0; // Near ground
+                        timeScale = 2.0; // Low atmosphere
                     }
                 } else {
                     timeScale = 1.0;
@@ -980,15 +1028,34 @@ public class Launcher {
                 int gridX = (mousePos.x - gridStartX) / CELL_SIZE;
                 int gridY = mousePos.y / CELL_SIZE; 
                 if(gridX >= GRID_WIDTH || gridY >= GRID_HEIGHT) return;
-                int x = gridStartX + gridX * CELL_SIZE; 
-                int y = gridY * CELL_SIZE;
-                Composite old = g2d.getComposite(); g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-                drawPart(g2d, selectedPartType, x, y, 1.0f); g2d.setComposite(old);
-                if(!isPlacementLegal(selectedPartType, gridX, gridY) || grid[gridX][gridY] != null) {
-                    g2d.setColor(Color.RED); g2d.setStroke(new BasicStroke(4));
-                    g2d.drawLine(x, y, x + CELL_SIZE, y + CELL_SIZE); g2d.drawLine(x + CELL_SIZE, y, x, y + CELL_SIZE);
-                    g2d.setStroke(new BasicStroke(1));
+                
+                int mirroredX = (GRID_WIDTH - 1) - gridX;
+                boolean isCenter = (gridX == mirroredX);
+
+                // Draw original ghost part
+                drawSingleGhost(g2d, gridX, gridY);
+
+                // Draw mirrored ghost part if not in center
+                if(!isCenter){
+                     drawSingleGhost(g2d, mirroredX, gridY);
                 }
+            }
+        }
+
+        private void drawSingleGhost(Graphics2D g2d, int gridX, int gridY) {
+            int gridStartX = SIDE_PANEL_WIDTH;
+            int x = gridStartX + gridX * CELL_SIZE; 
+            int y = gridY * CELL_SIZE;
+            Composite old = g2d.getComposite();
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+            drawPart(g2d, selectedPartType, x, y, 1.0f);
+            g2d.setComposite(old);
+            if (!isPlacementLegal(selectedPartType, gridX, gridY) || grid[gridX][gridY] != null) {
+                g2d.setColor(Color.RED);
+                g2d.setStroke(new BasicStroke(4));
+                g2d.drawLine(x, y, x + CELL_SIZE, y + CELL_SIZE);
+                g2d.drawLine(x + CELL_SIZE, y, x, y + CELL_SIZE);
+                g2d.setStroke(new BasicStroke(1));
             }
         }
         
@@ -1006,5 +1073,4 @@ public class Launcher {
         }
     }
 }
-
 
