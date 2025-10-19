@@ -542,7 +542,8 @@ public class Launcher {
                 if (s.hasActiveEngine()) {
                     if (s.getTotalCurrentFuel() > 0) {
                         activeStage = s; break;
-                    } else if (autoDetachEnabled) {
+                    // BUGFIX: Hier wird die Bedingung hinzugefügt, um die letzte Stufe NICHT automatisch abzutrennen.
+                    } else if (autoDetachEnabled && getActiveStageCount() > 1) {
                         detachStage(s);
                     }
                 }
@@ -866,4 +867,3 @@ public class Launcher {
         }
     }
 }
-
