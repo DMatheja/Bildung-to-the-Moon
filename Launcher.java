@@ -123,14 +123,18 @@ public class Launcher {
         private Timer gameLoop;
         private long lastUpdateTime;
         private double timeScale = 1.0;
+        private double timeSinceOutOfFuel = -1.0;
         private double cameraWorldY = 0;
         private double rocketVelY = 0;
         private double altitude = 0;
         private double maxAltitude = 0;
         private double gForce = 0;
+        private double dynamicPressure = 0;
+        private double maxDynamicPressure = 0;
         private double currentTotalMass = 0;
         private double missionTime = 0;
         private final List<Particle> particles = new ArrayList<>();
+        private boolean particlesInitialized = false;
         private final List<DetachedStage> detachedStages = new ArrayList<>();
 
         private static class RocketPart {
@@ -179,38 +183,75 @@ public class Launcher {
             double x, y, velX, velY; int lifetime; Color color;
             Particle(double x, double y) { this.x = x; this.y = y; this.lifetime = Integer.MAX_VALUE; }
             void update(double deltaTime) { x += velX * deltaTime; }
-            abstract void draw(Graphics2D g2d, double cameraY);
+            abstract void draw(Graphics2D g2d, double cameraY, double altitude);
             boolean isDead() { return lifetime <= 0; }
         }
 
         private static class Cloud extends Particle {
             double scale, parallaxFactor;
-            Cloud(int panelWidth) {
-                super(Math.random() * (panelWidth + 400) - 200, (GRID_HEIGHT * CELL_SIZE) - (Math.random() * 12000 + 2000) * PIXELS_PER_METER);
+            Cloud(int panelWidth, int panelHeight) {
+                super(Math.random() * (panelWidth + 400) - 200, Math.random() * panelHeight * 5 - panelHeight * 2);
                 this.velX = (Math.random() - 0.5) * 40;
                 this.scale = (Math.random() * 60 + 40) * 2;
-                this.parallaxFactor = Math.random() * 0.4 + 0.1;
+                this.parallaxFactor = Math.random() * 0.3 + 0.2; // Further away
                 this.color = new Color(255, 255, 255, 150);
             }
             @Override
-            void draw(Graphics2D g2d, double cameraY) {
-                double screenY = y - cameraY * parallaxFactor;
+            void draw(Graphics2D g2d, double cameraY, double altitude) {
+                double screenY = this.y - cameraY * this.parallaxFactor;
                 g2d.setColor(color);
                 g2d.fillOval((int)x, (int)screenY, (int)scale, (int)(scale * 0.6));
+            }
+        }
+        
+        private static class Star extends Particle {
+            double parallaxFactor;
+            int size;
+            Star(int panelWidth, int panelHeight) {
+                // KORREKTUR: Sterne werden jetzt in einem 20x größeren vertikalen Bereich platziert.
+                super(Math.random() * panelWidth, (Math.random() * panelHeight * 20) - (panelHeight * 10)); 
+                this.parallaxFactor = 0.001; // Far: close to 0
+                this.size = (int)(Math.random() * 2 + 3); // Bigger stars
+            }
+            @Override
+            void draw(Graphics2D g2d, double cameraY, double altitude) {
+                if (altitude < 20000) return; // Visible earlier
+                float alpha = (float)(Math.min(1.0, (altitude - 20000) / 40000.0) * (Math.random() * 0.5 + 0.5)); // Faster fade-in with twinkle
+                g2d.setColor(new Color(1f, 1f, 1f, alpha));
+                double screenY = this.y - cameraY * this.parallaxFactor;
+                g2d.fillRect((int)x, (int)screenY, size, size);
+            }
+        }
+        
+        private static class DebrisParticle extends Particle {
+            DebrisParticle(double rocketWorldX, double cameraY, int panelHeight) {
+                super(rocketWorldX + (Math.random() - 0.5) * 800, cameraY + panelHeight + Math.random() * 50);
+                this.velY = -(Math.random() * 100 + 50);
+                this.lifetime = (int)(Math.random() * 100 + 50);
+                this.color = new Color(200, 200, 200, 100);
+            }
+             @Override void update(double deltaTime) {
+                y += velY * deltaTime * 15;
+                lifetime--;
+            }
+            @Override
+            void draw(Graphics2D g2d, double cameraY, double altitude) {
+                g2d.setColor(color);
+                g2d.fillRect((int)x, (int)y, 3, 3);
             }
         }
 
         private static class Bird extends Particle {
              double parallaxFactor;
-             Bird(int panelWidth) {
-                super(Math.random() * panelWidth, (GRID_HEIGHT * CELL_SIZE) - (Math.random() * 11500 + 500) * PIXELS_PER_METER);
+             Bird(int panelWidth, int panelHeight) {
+                super(Math.random() * panelWidth, Math.random() * panelHeight * 2);
                 this.velX = (Math.random() - 0.5) * 150;
-                this.parallaxFactor = Math.random() * 0.5 + 0.4;
+                this.parallaxFactor = Math.random() * 0.4 + 0.5; // Nearer
                 this.color = Color.DARK_GRAY;
             }
              @Override
-            void draw(Graphics2D g2d, double cameraY) {
-                double screenY = y - cameraY * parallaxFactor;
+            void draw(Graphics2D g2d, double cameraY, double altitude) {
+                double screenY = this.y - cameraY * this.parallaxFactor;
                 g2d.setColor(color);
                 g2d.setStroke(new BasicStroke(3));
                 int[] xPoints = {(int)x - 15, (int)x, (int)x + 15};
@@ -221,15 +262,15 @@ public class Launcher {
 
         private static class Satellite extends Particle {
             double parallaxFactor;
-            Satellite(int panelWidth) {
-                super(Math.random() * panelWidth, (GRID_HEIGHT * CELL_SIZE) - (Math.random() * 500000 + 160000) * PIXELS_PER_METER);
-                this.velX = (Math.random() > 0.5 ? 1 : -1) * 7800;
-                this.parallaxFactor = 0.98;
+            Satellite(int panelWidth, int panelHeight) {
+                super(Math.random() * panelWidth, Math.random() * panelHeight);
+                this.velX = (Math.random() > 0.5 ? 1 : -1) * 200;
+                this.parallaxFactor = 0.02; // Very far: close to 0
                 this.color = Color.LIGHT_GRAY;
             }
             @Override
-            void draw(Graphics2D g2d, double cameraY) {
-                double screenY = y - cameraY * parallaxFactor;
+            void draw(Graphics2D g2d, double cameraY, double altitude) {
+                double screenY = this.y - cameraY * this.parallaxFactor;
                 g2d.setColor(color);
                 g2d.fillRect((int)x - 10, (int)screenY - 3, 20, 6);
                 g2d.drawLine((int)x - 25, (int)screenY - 10, (int)x + 25, (int)screenY + 10);
@@ -238,37 +279,48 @@ public class Launcher {
         }
 
         private static class ExplosionParticle extends Particle {
+            float alpha = 1.0f;
+            int initialLifetime;
             ExplosionParticle(double x, double y) {
                 super(x,y);
                 this.velX = (Math.random() - 0.5) * 300; this.velY = (Math.random() - 0.5) * 300;
-                this.lifetime = (int)(Math.random() * 80 + 40); this.color = Math.random() > 0.5 ? Color.ORANGE : Color.YELLOW;
+                this.lifetime = (int)(Math.random() * 80 + 40);
+                this.initialLifetime = this.lifetime;
+                this.color = Math.random() > 0.5 ? Color.ORANGE : Color.YELLOW;
             }
             @Override void update(double deltaTime) { 
                 x += velX * deltaTime;
                 y += velY * deltaTime;
                 velY += SEA_LEVEL_GRAVITY * 10 * deltaTime;
                 lifetime--; 
+                alpha = (float)lifetime / initialLifetime;
             }
-            @Override void draw(Graphics2D g2d, double cameraY) {
-                 g2d.setColor(color); g2d.fillRect((int)x, (int)y, 8, 8);
+            @Override void draw(Graphics2D g2d, double cameraY, double altitude) {
+                 g2d.setColor(new Color(color.getRed()/255f, color.getGreen()/255f, color.getBlue()/255f, Math.max(0, alpha)));
+                 g2d.fillRect((int)x, (int)y, 8, 8);
             }
         }
 
         private static class ExhaustParticle extends Particle {
+            float alpha = 1.0f;
+            int initialLifetime;
             ExhaustParticle(double x, double y, double parentVelY) {
                 super(x,y);
                 this.velX = (Math.random() - 0.5) * 50 * PIXELS_PER_METER;
                 this.velY = parentVelY * PIXELS_PER_METER + (Math.random() * 150 + 100) * PIXELS_PER_METER;
                 this.lifetime = (int)(Math.random() * 40 + 30);
+                this.initialLifetime = this.lifetime;
                 this.color = Math.random() > 0.3 ? Color.ORANGE : Color.YELLOW;
             }
             @Override void update(double deltaTime) {
                 x += velX * deltaTime;
                 y += velY * deltaTime;
                 lifetime--;
+                alpha = (float)lifetime / initialLifetime;
             }
-            @Override void draw(Graphics2D g2d, double cameraY) {
-                g2d.setColor(color); g2d.fillRect((int)x, (int)y, 6, 6);
+            @Override void draw(Graphics2D g2d, double cameraY, double altitude) {
+                g2d.setColor(new Color(color.getRed()/255f, color.getGreen()/255f, color.getBlue()/255f, Math.max(0, alpha)));
+                g2d.fillRect((int)x, (int)y, 6, 6);
             }
         }
 
@@ -276,15 +328,15 @@ public class Launcher {
             int panelWidth = SIDE_PANEL_WIDTH + GRID_WIDTH * CELL_SIZE + SIDE_PANEL_WIDTH; 
             int panelHeight = GRID_HEIGHT * CELL_SIZE;
             setPreferredSize(new Dimension(panelWidth, panelHeight)); setBackground(Color.DARK_GRAY);
-            resetBackgroundParticles();
             setupInputHandlers();
         }
         
-        private void resetBackgroundParticles() {
-            particles.removeIf(p -> p instanceof Cloud || p instanceof Bird || p instanceof Satellite);
-            for (int i = 0; i < 250; i++) { particles.add(new Cloud(getWidth())); }
-            for (int i = 0; i < 50; i++) { particles.add(new Bird(getWidth())); }
-            for (int i = 0; i < 20; i++) { particles.add(new Satellite(getWidth())); }
+        private void resetBackgroundParticles(int w, int h) {
+            particles.clear();
+            for (int i = 0; i < 50; i++) { particles.add(new Cloud(w, h)); }
+            for (int i = 0; i < 20; i++) { particles.add(new Bird(w, h)); }
+            for (int i = 0; i < 10; i++) { particles.add(new Satellite(w, h)); }
+            for (int i = 0; i < 400; i++) { particles.add(new Star(w, h)); }
         }
 
         private void setupInputHandlers() { 
@@ -344,9 +396,10 @@ public class Launcher {
         private void prepareForLaunch() {
             currentState = GameState.READY_FOR_LAUNCH;
             rocketVelY = 0; altitude = 0; maxAltitude = 0; gForce = 0;
-            missionTime = -3.0; isOutOfFuel = false; timeScale = 1.0;
+            dynamicPressure = 0; maxDynamicPressure = 0;
+            missionTime = -3.0; isOutOfFuel = false; timeScale = 1.0; timeSinceOutOfFuel = -1.0;
             detachedStages.clear();
-            particles.removeIf(p -> !(p instanceof Cloud || p instanceof Bird || p instanceof Satellite));
+            particles.removeIf(p -> p instanceof ExplosionParticle || p instanceof ExhaustParticle || p instanceof DebrisParticle);
             
             int maxGridY = placedParts.stream().mapToInt(p -> p.gridY).max().orElse(GRID_HEIGHT - 1);
             double yOffset = (GRID_HEIGHT - 1 - maxGridY) * CELL_SIZE;
@@ -379,11 +432,11 @@ public class Launcher {
         }
         
         private void resetToBuilding() {
-            stopGameLoop(); currentState = GameState.BUILDING; 
+            stopGameLoop(); 
+            currentState = GameState.BUILDING; 
             detachedStages.clear();
-            particles.removeIf(p -> !(p instanceof Cloud || p instanceof Bird || p instanceof Satellite));
-            resetBackgroundParticles();
-
+            particlesInitialized = false;
+            
             currentTotalMass = 0;
             for (RocketPart part : placedParts) {
                 part.currentFuel = part.type.fuelCapacity; 
@@ -510,11 +563,24 @@ public class Launcher {
             particles.forEach(p -> {p.update(deltaTime); if(p instanceof Cloud){ Cloud c = (Cloud)p; if (c.x > getWidth() + 200) c.x = -200; if (c.x < -200) c.x = getWidth() + 200; }});
             particles.removeIf(Particle::isDead);
             
+             if (currentState == GameState.LAUNCHING && rocketVelY < 0 && altitude < 2000) {
+                if (Math.random() > 0.7) { 
+                    double rocketX = 0; int activeParts = 0;
+                    for (RocketPart p : placedParts) {
+                        if (!p.isDetached) { rocketX += p.worldX; activeParts++; }
+                    }
+                    if (activeParts > 0) {
+                        rocketX /= activeParts;
+                        particles.add(new DebrisParticle(rocketX, cameraWorldY, getHeight()));
+                    }
+                }
+            }
+
             for(DetachedStage ds : detachedStages) {
                 double stageMass = ds.parts.stream().mapToDouble(p -> p.type.mass).sum();
                 if(stageMass <= 0) continue;
                 double stageGravity = stageMass * getGravityAt(ds.altitude);
-                double stageDrag = DRAG_CONSTANT * getAirDensityAt(ds.altitude) * ds.velY * Math.abs(ds.velY);
+                double stageDrag = -DRAG_CONSTANT * getAirDensityAt(ds.altitude) * ds.velY * Math.abs(ds.velY);
                 double netForce = stageGravity + stageDrag;
                 double acceleration = netForce / stageMass;
                 ds.velY += acceleration * deltaTime;
@@ -542,7 +608,6 @@ public class Launcher {
                 if (s.hasActiveEngine()) {
                     if (s.getTotalCurrentFuel() > 0) {
                         activeStage = s; break;
-                    // BUGFIX: Hier wird die Bedingung hinzugefügt, um die letzte Stufe NICHT automatisch abzutrennen.
                     } else if (autoDetachEnabled && getActiveStageCount() > 1) {
                         detachStage(s);
                     }
@@ -552,6 +617,7 @@ public class Launcher {
             double currentGravity = getGravityAt(altitude);
             if(activeStage != null) {
                 isOutOfFuel = false;
+                timeSinceOutOfFuel = -1.0;
                 timeScale = 1.0;
                 totalThrust = activeStage.stageEngines.stream().mapToDouble(e -> e.type.thrust).sum();
                 int isp = activeStage.stageEngines.get(0).type.specificImpulse;
@@ -563,9 +629,30 @@ public class Launcher {
                     }
                 }
             } else {
-                isOutOfFuel = true;
-                if (altitude > 10000) {
-                    timeScale = 10.0;
+                if (!isOutOfFuel) {
+                    isOutOfFuel = true;
+                    timeSinceOutOfFuel = 0.0;
+                }
+                if(timeSinceOutOfFuel >= 0) {
+                    timeSinceOutOfFuel += actualDeltaTime; // Use actual delta time for the timer
+                }
+
+                if (timeSinceOutOfFuel > 1.0) {
+                    if (Math.abs(rocketVelY) < 100 && altitude > 80000) {
+                        timeScale = 100.0; // Apogee in space
+                    } else if (altitude > 100000) {
+                        timeScale = 50.0; // High space flight
+                    } else if (altitude > 50000) {
+                        timeScale = 25.0; // Low space flight
+                    } else if (altitude > 20000) {
+                        timeScale = 10.0; // Upper atmosphere
+                    } else if (altitude > 5000) {
+                        timeScale = 5.0; // Mid atmosphere
+                    } else if (altitude > 1000) {
+                        timeScale = 2.0; // Low atmosphere
+                    } else {
+                        timeScale = 1.0; // Near ground
+                    }
                 } else {
                     timeScale = 1.0;
                 }
@@ -574,13 +661,18 @@ public class Launcher {
             double forceThrust = -totalThrust;
             double forceGravity = currentTotalMass * currentGravity;
             double airDensity = getAirDensityAt(altitude);
-            double forceDrag = DRAG_CONSTANT * airDensity * rocketVelY * Math.abs(rocketVelY);
+            double forceDrag = -DRAG_CONSTANT * airDensity * rocketVelY * Math.abs(rocketVelY);
             
             double netForce = forceThrust + forceGravity + forceDrag;
             double acceleration = netForce / currentTotalMass;
             rocketVelY += acceleration * deltaTime;
             gForce = Math.abs(acceleration / SEA_LEVEL_GRAVITY);
             altitude += -rocketVelY * deltaTime;
+            
+            dynamicPressure = 0.5 * airDensity * rocketVelY * rocketVelY;
+            if (dynamicPressure > maxDynamicPressure) {
+                maxDynamicPressure = dynamicPressure;
+            }
             
             for (RocketPart part : placedParts) {
                 if (!part.isDetached) { part.worldY += rocketVelY * deltaTime * PIXELS_PER_METER; }
@@ -609,6 +701,12 @@ public class Launcher {
         protected void paintComponent(Graphics g) {
             super.paintComponent(g); Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            if (!particlesInitialized && getWidth() > 0 && getHeight() > 0) {
+                resetBackgroundParticles(getWidth(), getHeight());
+                particlesInitialized = true;
+            }
+
             updateUIRectangles();
             if (currentState == GameState.BUILDING) { drawBuildMode(g2d); }
             else { drawLaunchMode(g2d); }
@@ -644,17 +742,38 @@ public class Launcher {
             cameraWorldY = focusY - (getHeight() / 2.0);
             
             AffineTransform originalTransform = g2d.getTransform();
+            
+            // Layer 1: Sky and Parallax Background (Screen Space)
+            drawSky(g2d);
+            drawParallaxParticles(g2d);
+            
+            // Layer 2: World Objects (World Space)
             g2d.translate(0, -cameraWorldY); 
-            drawLaunchBackground(g2d);
-            drawParticles(g2d);
+            drawGround(g2d);
+            drawWorldParticles(g2d);
             drawDetachedStages(g2d);
-            if (currentState != GameState.EXPLODED) { drawPlacedParts(g2d); }
-            g2d.setTransform(originalTransform); drawLaunchUI(g2d);
+            if (currentState != GameState.EXPLODED) {
+                drawPlacedParts(g2d);
+            }
+            
+            // Layer 3: UI (Screen Space)
+            g2d.setTransform(originalTransform); 
+            drawLaunchUI(g2d);
         }
         
-        private void drawParticles(Graphics2D g2d) {
+        private void drawWorldParticles(Graphics2D g2d) {
             for(Particle p : particles) {
-                p.draw(g2d, cameraWorldY);
+                if (!(p instanceof Star || p instanceof Cloud || p instanceof Bird || p instanceof Satellite)) {
+                    p.draw(g2d, cameraWorldY, altitude);
+                }
+            }
+        }
+        
+        private void drawParallaxParticles(Graphics2D g2d) {
+            for (Particle p : particles) {
+                if (p instanceof Star || p instanceof Cloud || p instanceof Bird || p instanceof Satellite) {
+                    p.draw(g2d, cameraWorldY, altitude);
+                }
             }
         }
 
@@ -666,18 +785,20 @@ public class Launcher {
             }
         }
 
-        private void drawLaunchBackground(Graphics2D g2d) {
+        private void drawSky(Graphics2D g2d) {
             float skyHue = (float)Math.max(0, 200 - altitude/80000) / 360f;
-            Color skyTop = Color.getHSBColor(skyHue, 0.7f, 0.9f); Color skyBottom = Color.getHSBColor(skyHue, 0.5f, 0.5f);
-            g2d.setPaint(new GradientPaint(0, (int)cameraWorldY, skyTop, 0, (int)cameraWorldY + getHeight(), skyBottom));
-            g2d.fillRect(0, (int)cameraWorldY, getWidth(), getHeight());
+            float brightness = (float)Math.max(0.05, 0.9 - altitude / 120000.0);
+            float saturation = (float)Math.max(0.1, 0.7 - altitude / 150000.0);
+            Color skyTop = Color.getHSBColor(skyHue, saturation, brightness);
+            Color skyBottom = Color.getHSBColor(skyHue, saturation * 0.8f, brightness * 0.6f);
             
-            for(Particle p : particles) {
-                if (p instanceof Cloud) {
-                    p.draw(g2d, cameraWorldY);
-                }
-            }
-            g2d.setColor(new Color(34, 139, 34)); g2d.fillRect(-getWidth(), GRID_HEIGHT * CELL_SIZE, getWidth()*3, getHeight()*10);
+            g2d.setPaint(new GradientPaint(0, 0, skyTop, 0, getHeight(), skyBottom));
+            g2d.fillRect(0, 0, getWidth(), getHeight());
+        }
+
+        private void drawGround(Graphics2D g2d) {
+            g2d.setColor(new Color(34, 139, 34)); 
+            g2d.fillRect(-getWidth(), GRID_HEIGHT * CELL_SIZE, getWidth()*3, getHeight()*10);
         }
 
         private void drawGrid(Graphics2D g2d) { 
@@ -774,14 +895,27 @@ public class Launcher {
         private void drawLaunchUI(Graphics2D g2d) {
             int uiStartX = SIDE_PANEL_WIDTH + GRID_WIDTH * CELL_SIZE;
 
-            g2d.setColor(Color.WHITE); g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
-            g2d.drawString(String.format("Altitude: %.0f m", altitude), uiStartX + 15, 40);
-            g2d.drawString(String.format("Max Alt: %.0f m", maxAltitude), uiStartX + 15, 70);
-            g2d.drawString(String.format("Atm. Press: %.1f %%", getAirDensityAt(altitude)/SEA_LEVEL_AIR_DENSITY * 100), uiStartX + 15, 100);
-
-            g2d.drawString(String.format("Velocity: %.1f m/s", -rocketVelY), 15, 40);
-            g2d.drawString(String.format("G-Force: %.1f G", gForce), 15, 70);
-            g2d.drawString(String.format("Mass: %.0f kg", currentTotalMass), 15, 100);
+            // --- Left Panel ---
+            g2d.setColor(Color.YELLOW);
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
+            g2d.drawString("FLIGHT DATA", 15, 30);
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 20));
+            g2d.drawString(String.format("Velocity: %.1f m/s", -rocketVelY), 15, 60);
+            g2d.drawString(String.format("G-Force: %.1f G", gForce), 15, 90);
+            g2d.drawString(String.format("Mass: %.0f kg", currentTotalMass), 15, 120);
+            
+            // --- Right Panel ---
+            g2d.setColor(Color.YELLOW);
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
+            g2d.drawString("TELEMETRY", uiStartX + 15, 30);
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 20));
+            g2d.drawString(String.format("Altitude: %.0f m", altitude), uiStartX + 15, 60);
+            g2d.drawString(String.format("Max Alt: %.0f m", maxAltitude), uiStartX + 15, 90);
+            g2d.drawString(String.format("Atm. Press: %.1f %%", getAirDensityAt(altitude)/SEA_LEVEL_AIR_DENSITY * 100), uiStartX + 15, 120);
+            g2d.drawString(String.format("Q: %.1f kPa", dynamicPressure/1000), uiStartX + 15, 150);
+            g2d.drawString(String.format("Max Q: %.1f kPa", maxDynamicPressure/1000), uiStartX + 15, 180);
 
             if (timeScale > 1.0) {
                 g2d.setColor(Color.CYAN);
@@ -799,7 +933,12 @@ public class Launcher {
             g2d.setFont(new Font("SansSerif", Font.BOLD, 48));
             g2d.drawString(timeString, getWidth() / 2 - 100, 60);
             
-            int uiX = uiStartX + 15; int uiY = 130; int stageNum = 1;
+            int uiX = uiStartX + 15; int uiY = 220; int stageNum = 1;
+             g2d.setColor(Color.YELLOW);
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
+            g2d.drawString("STAGES", uiX, uiY - 5);
+            uiY += 30;
+
             for (int i = stages.size() - 1; i >= 0; i--) {
                 Stage stage = stages.get(i); if (!stage.hasActiveEngine()) continue;
                 double capacity = stage.parts.stream().mapToDouble(p -> p.type.fuelCapacity).sum();
@@ -867,3 +1006,5 @@ public class Launcher {
         }
     }
 }
+
+
