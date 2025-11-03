@@ -1,11 +1,11 @@
 package de.bildung.moon;
 
+import static de.bildung.moon.GameConstants.*;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import javax.swing.SwingUtilities;
-import static de.bildung.moon.GameConstants.*;
 
 /**
  * Verarbeitet alle Mauseingaben.
@@ -61,37 +61,40 @@ public class InputHandler extends MouseAdapter {
         int gridStartX = SIDE_PANEL_WIDTH;
         int gridEndX = gridStartX + GRID_WIDTH * CELL_SIZE;
 
-        if (model.currentState == GameState.BUILDING) {
-            if (clickPos.x >= gridStartX && clickPos.x < gridEndX) {
-                int gridX = (clickPos.x - gridStartX) / CELL_SIZE;
-                int gridY = clickPos.y / CELL_SIZE;
-                buildManager.tryPlacePart(gridX, gridY);
-            } else if (clickPos.x < gridStartX) {
-                buildManager.selectPartFromShop(clickPos);
+        if (null != model.currentState) switch (model.currentState) {
+            case BUILDING -> {
+                if (clickPos.x >= gridStartX && clickPos.x < gridEndX) {
+                    int gridX = (clickPos.x - gridStartX) / CELL_SIZE;
+                    int gridY = clickPos.y / CELL_SIZE;
+                    buildManager.tryPlacePart(gridX, gridY);
+                } else if (clickPos.x < gridStartX) {
+                    buildManager.selectPartFromShop(clickPos);
+                }   if (model.launchButton.contains(clickPos) && !model.placedParts.isEmpty()) {
+                    gameManager.prepareForLaunch();
+                }   if (model.autoDetachCheckbox.contains(clickPos)) {
+                    model.autoDetachEnabled = !model.autoDetachEnabled;
+                }
             }
-            if (model.launchButton.contains(clickPos) && !model.placedParts.isEmpty()) {
-                gameManager.prepareForLaunch();
+            case READY_FOR_LAUNCH, COUNTDOWN -> {
+                if (model.startButton.contains(clickPos) && model.currentState == GameState.READY_FOR_LAUNCH) {
+                    model.currentState = GameState.COUNTDOWN;
+                }   if (model.backToHangarButton.contains(clickPos)) {
+                    gameManager.resetToBuilding();
+                }
             }
-            if (model.autoDetachCheckbox.contains(clickPos)) {
-                model.autoDetachEnabled = !model.autoDetachEnabled;
+            case LAUNCHING -> {
+                if (model.detachButton.contains(clickPos) && GameManager.getActiveStageCount(model) > 1) {
+                    gameManager.detachStage();
+                }   if (model.selfDestructButton.contains(clickPos) && (model.rocketVelY > 0 || model.isOutOfFuel)) {
+                    gameManager.explode();
+                }
             }
-        } else if (model.currentState == GameState.READY_FOR_LAUNCH || model.currentState == GameState.COUNTDOWN) {
-            if (model.startButton.contains(clickPos) && model.currentState == GameState.READY_FOR_LAUNCH) {
-                model.currentState = GameState.COUNTDOWN;
+            case EXPLODED -> {
+                if (model.backToHangarButton.contains(clickPos)) {
+                    gameManager.resetToBuilding();
+                }
             }
-            if (model.backToHangarButton.contains(clickPos)) {
-                gameManager.resetToBuilding();
-            }
-        } else if (model.currentState == GameState.LAUNCHING) {
-            if (model.detachButton.contains(clickPos) && GameManager.getActiveStageCount(model) > 1) {
-                gameManager.detachStage();
-            }
-            if (model.selfDestructButton.contains(clickPos) && (model.rocketVelY > 0 || model.isOutOfFuel)) {
-                gameManager.explode();
-            }
-        } else if (model.currentState == GameState.EXPLODED) {
-            if (model.backToHangarButton.contains(clickPos)) {
-                gameManager.resetToBuilding();
+            default -> {
             }
         }
         canvas.repaint();
