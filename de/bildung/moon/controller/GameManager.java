@@ -1,6 +1,9 @@
-package de.bildung.moon;
+package de.bildung.moon.controller;
 
-import static de.bildung.moon.GameConstants.*;
+import static de.bildung.moon.model.GameConstants.*;
+
+import de.bildung.moon.*;
+import de.bildung.moon.model.*;
 import de.bildung.moon.particle.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

@@ -1,10 +1,10 @@
-package de.bildung.moon;
+package de.bildung.moon.model;
 
 import de.bildung.moon.particle.Particle;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import static de.bildung.moon.GameConstants.*;
+import static de.bildung.moon.model.GameConstants.*;
 
 /**
  * Das "Model" der Anwendung.

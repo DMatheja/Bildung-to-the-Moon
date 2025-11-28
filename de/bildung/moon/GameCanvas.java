@@ -1,6 +1,14 @@
 package de.bildung.moon;
 
-import static de.bildung.moon.GameConstants.*;
+import de.bildung.moon.controller.BuildManager;
+import de.bildung.moon.controller.GameManager;
+import de.bildung.moon.controller.InputHandler;
+import de.bildung.moon.model.GameModel;
+import de.bildung.moon.model.GameState;
+import de.bildung.moon.views.BuildRenderer;
+import de.bildung.moon.views.SimulationRenderer;
+
+import static de.bildung.moon.model.GameConstants.*;
 import java.awt.*;
 import javax.swing.*;
 
@@ -12,7 +20,8 @@ import javax.swing.*;
 public class GameCanvas extends JPanel {
 
     private final GameModel model;
-    private final GameRenderer renderer;
+    private final BuildRenderer renderer;
+    private final SimulationRenderer simRenderer;
     // private final PhysicsEngine physicsEngine; // Wird jetzt vom GameManager verwaltet
     private final BuildManager buildManager;
     private final GameManager gameManager;
@@ -23,7 +32,8 @@ public class GameCanvas extends JPanel {
         model = new GameModel();
         
         // 2. Erstelle die Subsysteme und gib ihnen eine Referenz auf das Model
-        renderer = new GameRenderer(model);
+        renderer = new BuildRenderer(model);
+        simRenderer = new SimulationRenderer(model);
         buildManager = new BuildManager(model);
 
         // Der GameManager initialisiert jetzt die PhysicsEngine intern,
@@ -70,7 +80,29 @@ public class GameCanvas extends JPanel {
         if (!model.particlesInitialized && getWidth() > 0) {
              gameManager.resetBackgroundParticles(getWidth(), getHeight());
         }
-        renderer.paintComponent((Graphics2D) g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        updateUIRectangles(g2d.getClipBounds());
+        if (model.currentState == GameState.BUILDING) {
+            renderer.drawBuildMode(g2d);
+        } else {
+            simRenderer.drawLaunchMode(g2d);
+        }
+    }
+
+    private void updateUIRectangles(Rectangle bounds) {
+        if (bounds == null) return;
+        int h = bounds.height;
+        int uiStartX = SIDE_PANEL_WIDTH + GRID_WIDTH * CELL_SIZE;
+
+        model.launchButton.setBounds(uiStartX + 30, h - 80, 290, 60);
+        model.autoDetachCheckbox.setBounds(uiStartX + 30, h - 125, 290, 35);
+
+        model.startButton.setBounds(uiStartX + 30, h - 80, 290, 60);
+        model.backToHangarButton.setBounds(uiStartX + 30, h - 150, 290, 60);
+        model.detachButton.setBounds(15, h - 80, 220, 50);
+        model.selfDestructButton.setBounds(15, h - 140, 220, 50);
     }
 }
 

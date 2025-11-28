@@ -1,8 +1,11 @@
-package de.bildung.moon;
+package de.bildung.moon.controller;
 
-import static de.bildung.moon.GameConstants.*;
+import static de.bildung.moon.model.GameConstants.*;
+
+import de.bildung.moon.model.*;
 import de.bildung.moon.particle.DebrisParticle;
 import de.bildung.moon.particle.ExhaustParticle;
+import de.bildung.moon.particle.Particle;
 
 /**
  * Enthält die gesamte Physik-Logik für den Raketenflug.
@@ -38,7 +41,7 @@ public class PhysicsEngine {
                 }
             }
         });
-        model.particles.removeIf(p -> p.isDead());
+        model.particles.removeIf(Particle::isDead);
         
         // Debris-Partikel
         if (model.currentState == GameState.LAUNCHING && model.rocketVelY < 0 && model.altitude < 2000) {

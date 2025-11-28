@@ -1,6 +1,6 @@
-package de.bildung.moon;
+package de.bildung.moon.model;
 
-import static de.bildung.moon.GameConstants.CELL_SIZE;
+import static de.bildung.moon.model.GameConstants.CELL_SIZE;
 
 /**
  * Datenklasse zur Speicherung des Zustands eines einzelnen Raketenteils.

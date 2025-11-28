@@ -1,6 +1,11 @@
-package de.bildung.moon;
+package de.bildung.moon.controller;
 
-import static de.bildung.moon.GameConstants.*;
+import de.bildung.moon.GameCanvas;
+import de.bildung.moon.model.GameModel;
+import de.bildung.moon.model.GameState;
+import de.bildung.moon.model.PartType;
+
+import static de.bildung.moon.model.GameConstants.*;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

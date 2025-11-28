@@ -1,4 +1,4 @@
-package de.bildung.moon;
+package de.bildung.moon.model;
 
 /**
  * Eine zentrale Klasse zur Speicherung aller statischen Spielkonstanten.

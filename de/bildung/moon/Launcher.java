@@ -28,15 +28,19 @@ public class Launcher {
         panel.add(title, BorderLayout.NORTH);
         JPanel buttons = new JPanel();
         buttons.setLayout(new GridLayout(3, 1, 8, 8));
+
         JButton startBtn = new JButton("Start Game");
         startBtn.addActionListener(this::onStart);
         buttons.add(startBtn);
+
         JButton settingsBtn = new JButton("Settings");
         settingsBtn.addActionListener(this::onSettings);
         buttons.add(settingsBtn);
+
         JButton quitBtn = new JButton("Quit");
         quitBtn.addActionListener(e -> onQuit());
         buttons.add(quitBtn);
+
         panel.add(buttons, BorderLayout.CENTER);
         JLabel hint = new JLabel("Tip: implement your game and replace the placeholder.", JLabel.CENTER);
         hint.setFont(hint.getFont().deriveFont(11f));

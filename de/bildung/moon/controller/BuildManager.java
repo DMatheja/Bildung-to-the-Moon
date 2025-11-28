@@ -1,4 +1,9 @@
-package de.bildung.moon;
+package de.bildung.moon.controller;
+
+import de.bildung.moon.model.GameModel;
+import de.bildung.moon.model.PartType;
+import de.bildung.moon.model.RocketPart;
+import de.bildung.moon.model.Stage;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -6,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import static de.bildung.moon.GameConstants.*;
+import static de.bildung.moon.model.GameConstants.*;
 
 /**
  * Verwaltet die gesamte Logik, die im Hangar (BUILDING State) stattfindet.

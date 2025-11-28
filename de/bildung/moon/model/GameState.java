@@ -1,4 +1,4 @@
-package de.bildung.moon;
+package de.bildung.moon.model;
 
 /**
  * Definiert die möglichen Hauptzustände des Spiels.

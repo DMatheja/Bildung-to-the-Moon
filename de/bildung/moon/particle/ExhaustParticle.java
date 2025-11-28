@@ -2,7 +2,7 @@ package de.bildung.moon.particle;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import static de.bildung.moon.GameConstants.PIXELS_PER_METER;
+import static de.bildung.moon.model.GameConstants.PIXELS_PER_METER;
 
 public class ExhaustParticle extends Particle {
     float alpha = 1.0f;

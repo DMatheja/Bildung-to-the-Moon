@@ -2,7 +2,7 @@ package de.bildung.moon.particle;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import static de.bildung.moon.GameConstants.SEA_LEVEL_GRAVITY;
+import static de.bildung.moon.model.GameConstants.SEA_LEVEL_GRAVITY;
 
 public class ExplosionParticle extends Particle {
     float alpha = 1.0f;
