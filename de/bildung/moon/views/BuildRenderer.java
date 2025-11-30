@@ -1,12 +1,10 @@
 package de.bildung.moon.views;
 
 import de.bildung.moon.controller.BuildManager;
-import de.bildung.moon.controller.GameManager;
-import de.bildung.moon.controller.PhysicsEngine;
 import de.bildung.moon.model.*;
-import de.bildung.moon.particle.*;
+
 import java.awt.*;
-import java.awt.geom.AffineTransform;
+
 import static de.bildung.moon.model.GameConstants.*;
 
 /**
@@ -48,7 +46,7 @@ public class BuildRenderer {
 
     private void drawPlacedParts(Graphics2D g2d) {
         int gridStartX = (model.currentState == GameState.BUILDING) ? SIDE_PANEL_WIDTH : 0;
-        for (RocketPart part : model.placedParts) {
+        for (RocketPart part : model.rocket) {
             if ((model.currentState == GameState.LAUNCHING || model.currentState == GameState.EXPLODED) && part.isDetached)
                 continue;
             
@@ -118,7 +116,7 @@ public class BuildRenderer {
         g2d.drawString("Money: $" + model.playerMoney, shopX + 20, 90);
         
         double totalDryMass = 0;
-        for (RocketPart part : model.placedParts) totalDryMass += part.type.mass;
+        for (RocketPart part : model.rocket) totalDryMass += part.type.mass;
         g2d.setFont(new Font("SansSerif", Font.PLAIN, 20));
         g2d.drawString(String.format("Dry Mass: %.0f kg", totalDryMass), shopX + 20, 120);
     }
@@ -129,7 +127,7 @@ public class BuildRenderer {
         g2d.setColor(Color.BLACK);
         g2d.fillRect(uiX, 0, SIDE_PANEL_WIDTH, bounds.height);
 
-        g2d.setColor(model.placedParts.isEmpty() ? Color.GRAY : Color.GREEN);
+        g2d.setColor(model.rocket.isEmpty() ? Color.GRAY : Color.GREEN);
         g2d.fill(model.launchButton);
         g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 30));

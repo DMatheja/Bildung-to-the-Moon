@@ -48,7 +48,7 @@ public class PhysicsEngine {
             if (Math.random() > 0.7) {
                 double rocketX = 0;
                 int activeParts = 0;
-                for (RocketPart p : model.placedParts) {
+                for (RocketPart p : model.rocket) {
                     if (!p.isDetached) {
                         rocketX += p.worldX;
                         activeParts++;
@@ -84,7 +84,7 @@ public class PhysicsEngine {
         
         // --- 3. Masse aktualisieren ---
         model.currentTotalMass = 0;
-        for (RocketPart p : model.placedParts) {
+        for (RocketPart p : model.rocket) {
             if (!p.isDetached) model.currentTotalMass += p.type.mass + p.currentFuel;
         }
         if (model.currentTotalMass <= 0) {
@@ -154,7 +154,7 @@ public class PhysicsEngine {
         }
         
         // --- 6. Teile bewegen ---
-        for (RocketPart part : model.placedParts) {
+        for (RocketPart part : model.rocket) {
             if (!part.isDetached) {
                 part.worldY += model.rocketVelY * deltaTime * PIXELS_PER_METER;
             }

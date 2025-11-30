@@ -11,6 +11,7 @@ import java.awt.geom.AffineTransform;
 import static de.bildung.moon.model.GameConstants.*;
 
 public class SimulationRenderer {
+
     private final GameModel model;
 
     public SimulationRenderer(GameModel model) {
@@ -20,7 +21,7 @@ public class SimulationRenderer {
     public void drawLaunchMode(Graphics2D g2d) {
         double focusY = 0;
         int activePartCount = 0;
-        for (RocketPart p : model.placedParts) {
+        for (RocketPart p : model.rocket) {
             if (!p.isDetached) {
                 focusY += p.worldY;
                 activePartCount++;
@@ -237,7 +238,7 @@ public class SimulationRenderer {
 
     private void drawPlacedParts(Graphics2D g2d) {
         int gridStartX = (model.currentState == GameState.BUILDING) ? SIDE_PANEL_WIDTH : 0;
-        for (RocketPart part : model.placedParts) {
+        for (RocketPart part : model.rocket) {
             if ((model.currentState == GameState.LAUNCHING || model.currentState == GameState.EXPLODED) && part.isDetached)
                 continue;
 

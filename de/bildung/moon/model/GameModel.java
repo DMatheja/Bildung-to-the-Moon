@@ -18,7 +18,7 @@ public class GameModel {
 
     // --- Raketen- und Spielerdaten ---
     public final RocketPart[][] grid = new RocketPart[GRID_WIDTH][GRID_HEIGHT];
-    public final List<RocketPart> placedParts = new ArrayList<>();
+    public final List<RocketPart> rocket = new ArrayList<>();
     public final List<Stage> stages = new ArrayList<>();
     public int playerMoney = STARTING_MONEY;
     public PartType selectedPartType = null;

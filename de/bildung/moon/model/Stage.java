@@ -19,23 +19,44 @@ public class Stage {
     }
 
     public double getTotalCurrentFuel() {
-        return parts.stream().mapToDouble(p -> p.currentFuel).sum();
+        double sum = 0;
+        for(RocketPart part : parts){
+            sum += part.currentFuel;
+        }
+        return sum;
     }
 
     public boolean hasActiveEngine() {
-        return !stageEngines.isEmpty() && stageEngines.stream().noneMatch(e -> e.isDetached);
+        if (stageEngines.isEmpty()) {
+            return false;
+        }
+
+        for (RocketPart e : stageEngines) {
+            if (e.isDetached) {
+                return false;
+            }
+        }
+        // List is not empty and no detached engines were found
+        return true;
     }
 
     public void consumeFuel(double amount) {
-        List<RocketPart> fuelTanks = parts.stream()
-                .filter(p -> p.type == PartType.FUEL_TANK && p.currentFuel > 0)
-                .collect(Collectors.toList());
-        
-        if (fuelTanks.isEmpty()) return;
-        
+        List<RocketPart> fuelTanks = new ArrayList<>();
+        for (RocketPart p : parts) {
+            if (p.type == PartType.FUEL_TANK && p.currentFuel > 0) {
+                fuelTanks.add(p);
+            }
+        }
+
+        if (fuelTanks.isEmpty()) {
+            return;
+        }
+
         double consumptionPerTank = amount / fuelTanks.size();
+
         for (RocketPart tank : fuelTanks) {
             tank.currentFuel = Math.max(0, tank.currentFuel - consumptionPerTank);
         }
     }
+
 }

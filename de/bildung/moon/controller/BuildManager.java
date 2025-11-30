@@ -39,7 +39,7 @@ public class BuildManager {
                 model.playerMoney -= model.selectedPartType.cost;
                 RocketPart newPart = new RocketPart(model.selectedPartType, gridX, gridY);
                 model.grid[gridX][gridY] = newPart;
-                model.placedParts.add(newPart);
+                model.rocket.add(newPart);
                 recalculateStages(model);
             }
         } else {
@@ -50,11 +50,11 @@ public class BuildManager {
 
                 RocketPart part1 = new RocketPart(model.selectedPartType, gridX, gridY);
                 model.grid[gridX][gridY] = part1;
-                model.placedParts.add(part1);
+                model.rocket.add(part1);
 
                 RocketPart part2 = new RocketPart(model.selectedPartType, mirroredX, gridY);
                 model.grid[mirroredX][gridY] = part2;
-                model.placedParts.add(part2);
+                model.rocket.add(part2);
 
                 recalculateStages(model);
             }
@@ -73,18 +73,18 @@ public class BuildManager {
             if (isCenter) {
                 model.playerMoney += partToRemove.type.cost;
                 model.grid[gridX][gridY] = null;
-                model.placedParts.remove(partToRemove);
+                model.rocket.remove(partToRemove);
             } else {
                 RocketPart mirroredPart = model.grid[mirroredX][gridY];
 
                 model.playerMoney += partToRemove.type.cost;
                 model.grid[gridX][gridY] = null;
-                model.placedParts.remove(partToRemove);
+                model.rocket.remove(partToRemove);
 
                 if (mirroredPart != null) {
                     model.playerMoney += mirroredPart.type.cost;
                     model.grid[mirroredX][gridY] = null;
-                    model.placedParts.remove(mirroredPart);
+                    model.rocket.remove(mirroredPart);
                 }
             }
             recalculateStages(model);
@@ -111,7 +111,7 @@ public class BuildManager {
      * Prüft, ob ein Teil an einer bestimmten Position platziert werden darf.
      */
     public static boolean isPlacementLegal(GameModel model, PartType partType, int x, int y) {
-        if (model.placedParts.isEmpty()) {
+        if (model.rocket.isEmpty()) {
             // Das erste Teil muss ein Cockpit sein und in der Mitte platziert werden
             return partType == PartType.COCKPIT && x == GRID_WIDTH / 2;
         }
@@ -160,18 +160,55 @@ public class BuildManager {
      */
     public static void recalculateStages(GameModel model) {
         model.stages.clear();
-        List<RocketPart> allEngines = model.placedParts.stream().filter(p -> p.type.thrust > 0).collect(Collectors.toList());
-        List<RocketPart> unassignedParts = new ArrayList<>(model.placedParts);
+        List<Integer> stageYs = new ArrayList<>();
+        for(int y=0;y<model.grid[0].length;y++){
+            for(int x=0;x<model.grid.length;x++){
+                if(model.grid[x][y] != null && model.grid[x][y].type.thrust > 0){
+                    stageYs.add(y);
+                    break;
+                }
+            }
+        }
+        for (int i = 0; i < stageYs.size(); i++) {
+            Stage newStage = new Stage();
+
+            int startY;
+            if(i==0){
+                startY =0;
+            }else {
+                startY = stageYs.get(i - 1) + 1;
+            }
+
+            int endY;
+            if (i < stageYs.size() - 1) {
+                endY = stageYs.get(i + 1);
+            } else {
+                endY = model.grid[0].length;
+            }
+
+            for (int y = startY;y<endY;y++){
+                for(int x=0;x<model.grid.length;x++){
+                    if(model.grid[x][y] != null){
+                        newStage.parts.add(model.grid[x][y]);
+                    }
+                }
+            }
+            model.stages.add(newStage);
+        }
+
+
+        List<RocketPart> allEngines = model.rocket.stream().filter(p -> p.type.thrust > 0).toList();
+        List<RocketPart> unassignedParts = new ArrayList<>(model.rocket);
         
         allEngines.stream()
             .collect(Collectors.groupingBy(e -> e.gridY))
             .values().stream()
-            .sorted(Comparator.comparingInt(list -> list.get(0).gridY)) // Sortiert von oben nach unten
+            .sorted(Comparator.comparingInt(list -> list.getFirst().gridY)) // Sortiert von oben nach unten
             .forEach(engineGroup -> {
                 Stage newStage = new Stage(engineGroup);
                 List<RocketPart> partsToSearch = new ArrayList<>(engineGroup);
                 while (!partsToSearch.isEmpty()) {
-                    RocketPart current = partsToSearch.remove(0);
+                    RocketPart current = partsToSearch.removeFirst();
                     if (unassignedParts.contains(current) && !newStage.parts.contains(current)) {
                         newStage.parts.add(current);
                         unassignedParts.remove(current);

@@ -74,7 +74,7 @@ public class InputHandler extends MouseAdapter {
                     buildManager.tryPlacePart(gridX, gridY);
                 } else if (clickPos.x < gridStartX) {
                     buildManager.selectPartFromShop(clickPos);
-                }   if (model.launchButton.contains(clickPos) && !model.placedParts.isEmpty()) {
+                }   if (model.launchButton.contains(clickPos) && !model.rocket.isEmpty()) {
                     gameManager.prepareForLaunch();
                 }   if (model.autoDetachCheckbox.contains(clickPos)) {
                     model.autoDetachEnabled = !model.autoDetachEnabled;

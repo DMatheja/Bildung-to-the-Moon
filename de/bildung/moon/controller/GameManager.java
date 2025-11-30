@@ -90,7 +90,7 @@ public class GameManager implements ActionListener { // Implementiert ActionList
         if (model.currentState != GameState.LAUNCHING) return;
         
         // Prüfen, ob alle Teile abgetrennt sind
-        if (model.placedParts.stream().allMatch(p -> p.isDetached)) {
+        if (model.rocket.stream().allMatch(p -> p.isDetached)) {
             stopGameLoop();
         } 
         // Prüfen, ob abgestürzt
@@ -120,17 +120,17 @@ public class GameManager implements ActionListener { // Implementiert ActionList
         model.particles.removeIf(p -> p instanceof ExplosionParticle || p instanceof ExhaustParticle || p instanceof DebrisParticle);
         
         // Rakete auf dem Boden positionieren
-        int maxGridY = model.placedParts.stream().mapToInt(p -> p.gridY).max().orElse(GRID_HEIGHT - 1);
+        int maxGridY = model.rocket.stream().mapToInt(p -> p.gridY).max().orElse(GRID_HEIGHT - 1);
         double yOffset = (GRID_HEIGHT - 1 - maxGridY) * CELL_SIZE;
         int gridStartX = SIDE_PANEL_WIDTH;
-        for (RocketPart p : model.placedParts) {
+        for (RocketPart p : model.rocket) {
             p.worldY = p.gridY * CELL_SIZE + yOffset;
             p.worldX = gridStartX + p.gridX * CELL_SIZE;
         }
 
         // Gesamtmasse berechnen
         model.currentTotalMass = 0;
-        for (RocketPart p : model.placedParts) {
+        for (RocketPart p : model.rocket) {
             model.currentTotalMass += p.type.mass + p.currentFuel;
         }
 
@@ -151,7 +151,7 @@ public class GameManager implements ActionListener { // Implementiert ActionList
         // model.particlesInitialized = false; // Partikel müssen nicht neu geladen werden
 
         model.currentTotalMass = 0;
-        for (RocketPart part : model.placedParts) {
+        for (RocketPart part : model.rocket) {
             part.currentFuel = part.type.fuelCapacity;
             part.worldX = SIDE_PANEL_WIDTH + part.gridX * CELL_SIZE;
             part.worldY = part.gridY * CELL_SIZE;
@@ -176,7 +176,7 @@ public class GameManager implements ActionListener { // Implementiert ActionList
      */
     public void explode() {
         model.currentState = GameState.EXPLODED;
-        for (RocketPart p : model.placedParts) {
+        for (RocketPart p : model.rocket) {
             if (!p.isDetached) {
                 double partCenterX = p.worldX + (CELL_SIZE / 2.0);
                 double partCenterY = p.worldY + (CELL_SIZE / 2.0);
