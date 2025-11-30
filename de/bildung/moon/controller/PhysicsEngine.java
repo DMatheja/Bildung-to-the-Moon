@@ -115,7 +115,7 @@ public class PhysicsEngine {
             // model.timeScale = 1.0; // Dies wird jetzt vom GameManager gesteuert
             
             totalThrust = activeStage.stageEngines.stream().mapToDouble(e -> e.type.thrust).sum();
-            int isp = activeStage.stageEngines.get(0).type.specificImpulse;
+            int isp = activeStage.stageEngines.getFirst().type.specificImpulse;
             double fuelConsumption = (totalThrust / (isp * SEA_LEVEL_GRAVITY)) * deltaTime;
             activeStage.consumeFuel(fuelConsumption);
             

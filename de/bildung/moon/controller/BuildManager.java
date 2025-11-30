@@ -160,43 +160,6 @@ public class BuildManager {
      */
     public static void recalculateStages(GameModel model) {
         model.stages.clear();
-        List<Integer> stageYs = new ArrayList<>();
-        for(int y=0;y<model.grid[0].length;y++){
-            for(int x=0;x<model.grid.length;x++){
-                if(model.grid[x][y] != null && model.grid[x][y].type.thrust > 0){
-                    stageYs.add(y);
-                    break;
-                }
-            }
-        }
-        for (int i = 0; i < stageYs.size(); i++) {
-            Stage newStage = new Stage();
-
-            int startY;
-            if(i==0){
-                startY =0;
-            }else {
-                startY = stageYs.get(i - 1) + 1;
-            }
-
-            int endY;
-            if (i < stageYs.size() - 1) {
-                endY = stageYs.get(i + 1);
-            } else {
-                endY = model.grid[0].length;
-            }
-
-            for (int y = startY;y<endY;y++){
-                for(int x=0;x<model.grid.length;x++){
-                    if(model.grid[x][y] != null){
-                        newStage.parts.add(model.grid[x][y]);
-                    }
-                }
-            }
-            model.stages.add(newStage);
-        }
-
-
         List<RocketPart> allEngines = model.rocket.stream().filter(p -> p.type.thrust > 0).toList();
         List<RocketPart> unassignedParts = new ArrayList<>(model.rocket);
         
