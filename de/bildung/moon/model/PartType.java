@@ -5,7 +5,7 @@ import java.awt.Color;
 /**
  * Definiert alle verfügbaren Raketenteile und ihre Eigenschaften.
  */
-public enum PartType {
+public enum PartType {  //Hier müssen die Render-Eigenschaften ergänzt werden ( Polygone ) Sind momentan im Renderer
     COCKPIT("Cockpit", 200, Color.CYAN, 50, 0, 0, 0),
     FUEL_TANK("Fuel Tank", 100, Color.LIGHT_GRAY, 10, 200, 0, 0),
     A4_ENGINE("A-4 Engine", 250, Color.decode("#C0C0C0"), 120, 0, 8000, 100),
