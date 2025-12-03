@@ -1,15 +1,39 @@
 package de.bildung.moon.model;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 
-/**
- * Definiert alle verfügbaren Raketenteile und ihre Eigenschaften.
- */
-public enum PartType {  //Hier müssen die Render-Eigenschaften ergänzt werden ( Polygone ) Sind momentan im Renderer
-    COCKPIT("Cockpit", 200, Color.CYAN, 50, 0, 0, 0),
-    FUEL_TANK("Fuel Tank", 100, Color.LIGHT_GRAY, 10, 200, 0, 0),
-    A4_ENGINE("A-4 Engine", 250, Color.decode("#C0C0C0"), 120, 0, 8000, 100),
-    ENGINE_T1("T1 Engine", 500, Color.ORANGE, 50, 0, 50000, 300);
+public enum PartType {
+    COCKPIT("Cockpit", 200, Color.CYAN, 50, 0, 0, 0) {
+        @Override
+        public void renderShape(Graphics2D g2d, int x, int y, int size) {
+            // Dreieck
+            g2d.fillPolygon(
+                new int[]{x, x + size, x + size / 2}, 
+                new int[]{y + size, y + size, y}, 
+                3
+            );
+        }
+    },
+    FUEL_TANK("Fuel Tank", 100, Color.LIGHT_GRAY, 10, 200, 0, 0) {
+        @Override
+        public void renderShape(Graphics2D g2d, int x, int y, int size) {
+            // Quadrat
+            g2d.fillRect(x, y, size, size);
+        }
+    },
+    A4_ENGINE("A-4 Engine", 250, Color.decode("#C0C0C0"), 120, 0, 8000, 100) {
+        @Override
+        public void renderShape(Graphics2D g2d, int x, int y, int size) {
+            drawEngine(g2d, x, y, size);
+        }
+    },
+    ENGINE_T1("T1 Engine", 500, Color.ORANGE, 50, 0, 50000, 300) {
+        @Override
+        public void renderShape(Graphics2D g2d, int x, int y, int size) {
+            drawEngine(g2d, x, y, size);
+        }
+    };
 
     public final String name;
     public final int cost;
@@ -27,5 +51,23 @@ public enum PartType {  //Hier müssen die Render-Eigenschaften ergänzt werden 
         fuelCapacity = fc;
         thrust = t;
         specificImpulse = isp;
+    }
+
+    // Abstrakte Methode, die jedes Enum-Element implementieren muss
+    public abstract void renderShape(Graphics2D g2d, int x, int y, int size);
+
+    // Hilfsmethode für Engines, um Code-Duplizierung zu vermeiden
+    protected void drawEngine(Graphics2D g2d, int x, int y, int size) {
+        int nozzleInset = (int)(size * 0.2); // Ersetzt die fixen '20' Pixel für Skalierbarkeit
+        
+        // Oberer Teil (Rechteck)
+        g2d.fillRect(x, y, size, size / 2);
+        
+        // Unterer Teil (Trapez/Düse)
+        g2d.fillPolygon(
+            new int[]{x, x + size, x + size - nozzleInset, x + nozzleInset}, 
+            new int[]{y + size / 2, y + size / 2, y + size, y + size}, 
+            4
+        );
     }
 }
