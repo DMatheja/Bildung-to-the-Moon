@@ -2,10 +2,8 @@ package de.bildung.moon.views;
 
 import de.bildung.moon.controller.BuildManager;
 import de.bildung.moon.model.*;
-
-import java.awt.*;
-
 import static de.bildung.moon.model.GameConstants.*;
+import java.awt.*;
 
 /**
  * Der "View" der Anwendung.
@@ -188,23 +186,17 @@ public class BuildRenderer {
     }
 
     private void drawPart(Graphics2D g2d, PartType type, int x, int y, float scale) {
-        int size = (int) (CELL_SIZE * scale);
-        int inset = (int) (CELL_SIZE * (1 - scale) / 2);
-        x += inset;
-        y += inset;
-        g2d.setColor(type.color);
-        switch (type) {
-            case COCKPIT:
-                g2d.fillPolygon(new int[]{x, x + size, x + size / 2}, new int[]{y + size, y + size, y}, 3);
-                break;
-            case FUEL_TANK:
-                g2d.fillRect(x, y, size, size);
-                break;
-            case A4_ENGINE:
-            case ENGINE_T1:
-                g2d.fillRect(x, y, size, size / 2);
-                g2d.fillPolygon(new int[]{x, x + size, x + size - 20, x + 20}, new int[]{y + size / 2, y + size / 2, y + size, y + size}, 4);
-                break;
-        }
+    int size = (int) (CELL_SIZE * scale);
+    int inset = (int) (CELL_SIZE * (1 - scale) / 2);
+    
+    // Position mit Inset berechnen
+    int drawX = x + inset;
+    int drawY = y + inset;
+
+    // Farbe setzen
+    g2d.setColor(type.color);
+
+    // Die Form-Daten und Zeichenlogik kommen nun direkt aus dem Enum
+    type.renderShape(g2d, drawX, drawY, size);
     }
 }

@@ -1,8 +1,8 @@
 package de.bildung.moon;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import javax.swing.*;
 
 /**
  * Simple launcher UI for the "Bildung to the Moon" game.
@@ -42,7 +42,7 @@ public class Launcher {
         buttons.add(quitBtn);
 
         panel.add(buttons, BorderLayout.CENTER);
-        JLabel hint = new JLabel("Tip: implement your game and replace the placeholder.", JLabel.CENTER);
+        JLabel hint = new JLabel("Your ads could be here!", JLabel.CENTER);
         hint.setFont(hint.getFont().deriveFont(11f));
         panel.add(hint, BorderLayout.SOUTH);
         return panel;
