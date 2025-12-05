@@ -56,6 +56,7 @@ public class SimulationRenderer {
         drawWorldParticles(g2d);
         drawDetachedStages(g2d);
         if(model.currentState == GameState.MOON) drawMoon(g2d);
+        //drawMoon(g2d); //
         if (model.currentState != GameState.EXPLODED) {
             drawPlacedParts(g2d);
         }
@@ -248,7 +249,12 @@ private void drawPart(Graphics2D g2d, PartType type, int x, int y, float scale) 
 
     private void drawMoon(Graphics2D g2d) {
         Rectangle bounds = g2d.getClipBounds();
-        g2d.setColor(Color.WHITE);
+        //draw base shape
+        g2d.setColor(Color.GRAY.darker());
         g2d.fillOval(-bounds.width, (int) (model.cameraWorldY-bounds.height*1.5), bounds.width *4, bounds.height *2);
+        g2d.setColor(Color.DARK_GRAY);
+        g2d.fillOval((int) (bounds.width/1.1), (int) (model.cameraWorldY), bounds.height /2, bounds.height /2);
+        g2d.fillOval(bounds.width/2, (int) (model.cameraWorldY+bounds.height/8.0), bounds.height /4, bounds.height /4);
+        g2d.fillOval(bounds.width/6, (int) (model.cameraWorldY+bounds.height/4.0), bounds.height /8, bounds.height /8);
     }
 }
