@@ -55,13 +55,18 @@ public class SimulationRenderer {
         drawGround(g2d);
         drawWorldParticles(g2d);
         drawDetachedStages(g2d);
+        if(model.currentState == GameState.MOON) drawMoon(g2d);
         if (model.currentState != GameState.EXPLODED) {
             drawPlacedParts(g2d);
         }
 
+
+
         // Layer 3: UI (Screen Space)
         g2d.setTransform(originalTransform);
         drawLaunchUI(g2d);
+
+
     }
 
     private void drawWorldParticles(Graphics2D g2d) {
@@ -201,10 +206,10 @@ public class SimulationRenderer {
                 g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
                 g2d.drawString("SELF-DESTRUCT", model.selfDestructButton.x + 15, model.selfDestructButton.y + 35);
             }
-        } else if (model.currentState == GameState.EXPLODED) {
+        } else if (model.currentState == GameState.EXPLODED || model.currentState == GameState.MOON) {
             g2d.setColor(Color.RED);
             g2d.setFont(new Font("SansSerif", Font.BOLD, 60));
-            g2d.drawString("ROCKET DESTROYED", bounds.width / 2 - 350, bounds.height / 2);
+            g2d.drawString(  (model.currentState == GameState.EXPLODED)?"ROCKET DESTROYED":"REACHED MOON!", bounds.width / 2 - 350, bounds.height / 2);
             g2d.setColor(Color.LIGHT_GRAY);
             g2d.fill(model.backToHangarButton);
             g2d.setColor(Color.BLACK);
@@ -239,5 +244,11 @@ private void drawPart(Graphics2D g2d, PartType type, int x, int y, float scale) 
 
             drawPart(g2d, part.type, (int) drawX, (int) drawY, 1.0f);
         }
+    }
+
+    private void drawMoon(Graphics2D g2d) {
+        Rectangle bounds = g2d.getClipBounds();
+        g2d.setColor(Color.WHITE);
+        g2d.fillOval(-bounds.width, (int) (model.cameraWorldY-bounds.height*1.5), bounds.width *4, bounds.height *2);
     }
 }

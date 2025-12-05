@@ -5,9 +5,11 @@ import static de.bildung.moon.model.GameConstants.*;
 import de.bildung.moon.*;
 import de.bildung.moon.model.*;
 import de.bildung.moon.particle.*;
+import de.bildung.moon.views.SimulationRenderer;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.Timer;
+import javax.swing.*;
 
 /**
  * Verwaltet den Spielzustand, den Game-Loop und wichtige Zustandsübergänge
@@ -51,6 +53,7 @@ public class GameManager implements ActionListener { // Implementiert ActionList
 
         // 6. Neuzeichnen
         canvas.repaint();
+
     }
 
     private void handleCountdown(double deltaTime) {
@@ -99,6 +102,7 @@ public class GameManager implements ActionListener { // Implementiert ActionList
         } else {
             model.maxAltitude = Math.max(model.altitude, model.maxAltitude);
         }
+        if(model.altitude > 384400) model.currentState = GameState.MOON;
     }
 
     /**
