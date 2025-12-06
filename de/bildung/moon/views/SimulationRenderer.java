@@ -141,12 +141,12 @@ public class SimulationRenderer {
         //2theMoon Meter
         double moonDistRatio = (LUNAR_DISTANCE - model.altitude)/LUNAR_DISTANCE;
         g2d.setColor(Color.GRAY);
-        g2d.drawRect(uiStartX + 330, 30, 30, 290);
+        g2d.drawRect(uiStartX + 310, 30, 30, 290);
         g2d.setColor(Color.BLUE.brighter());
-        g2d.fillRect(uiStartX + 330+2, 30+2, 26, (int) (286 * moonDistRatio));
+        g2d.fillRect(uiStartX + 310+2, 30+2, 26, (int) (286 * moonDistRatio));
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
-        g2d.drawString("Distance to Moon", uiStartX + 150, 25);
+        g2d.drawString("Distance to Moon", uiStartX + 170, 25);
 
         if (model.timeScale > 1.0) {
             g2d.setColor(Color.CYAN);
@@ -166,7 +166,7 @@ public class SimulationRenderer {
 
         int uiX = uiStartX + 15;
         int uiY = 220;
-        int stageNum = 1;
+        int stageNum = model.stages.stream().filter(p -> p.getTotalCurrentFuel() > 0).toList().size();
         g2d.setColor(Color.YELLOW);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
         g2d.drawString("STAGES", uiX, uiY - 5);
@@ -187,7 +187,7 @@ public class SimulationRenderer {
                 g2d.drawString("Stage " + stageNum + " Fuel", uiX, uiY - 5);
                 uiY += 50;
             }
-            stageNum++;
+            stageNum--;
         }
         if (model.currentState == GameState.READY_FOR_LAUNCH || model.currentState == GameState.COUNTDOWN) {
             if (model.currentState == GameState.READY_FOR_LAUNCH) {
