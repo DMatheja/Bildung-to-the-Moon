@@ -25,6 +25,8 @@ public class BuildManager {
         this.model = model;
     }
 
+
+
     /**
      * Versucht, ein Teil auf dem Gitter zu platzieren.
      */
