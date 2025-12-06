@@ -138,6 +138,16 @@ public class SimulationRenderer {
         g2d.drawString(String.format("Q: %.1f kPa", model.dynamicPressure / 1000), uiStartX + 15, 150);
         g2d.drawString(String.format("Max Q: %.1f kPa", model.maxDynamicPressure / 1000), uiStartX + 15, 180);
 
+        //2theMoon Meter
+        double moonDistRatio = (LUNAR_DISTANCE - model.altitude)/LUNAR_DISTANCE;
+        g2d.setColor(Color.GRAY);
+        g2d.drawRect(uiStartX + 330, 30, 30, 290);
+        g2d.setColor(Color.BLUE.brighter());
+        g2d.fillRect(uiStartX + 330+2, 30+2, 26, (int) (286 * moonDistRatio));
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
+        g2d.drawString("Distance to Moon", uiStartX + 150, 25);
+
         if (model.timeScale > 1.0) {
             g2d.setColor(Color.CYAN);
             g2d.setFont(new Font("SansSerif", Font.BOLD, 24));

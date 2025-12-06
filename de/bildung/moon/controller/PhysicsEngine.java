@@ -175,7 +175,8 @@ public class PhysicsEngine {
      * Berechnet die Schwerkraft in einer bestimmten Höhe.
      */
     public static double getGravityAt(double alt) {
-        return SEA_LEVEL_GRAVITY * Math.pow(EARTH_RADIUS / (EARTH_RADIUS + alt), 2);
+        return SEA_LEVEL_GRAVITY * Math.pow(EARTH_RADIUS / (EARTH_RADIUS + alt), 2) -
+                    MOON_SURFACE_GRAVITY * Math.pow(MOON_RADIUS/ (MOON_RADIUS + LUNAR_DISTANCE - alt ), 2);
     }
 }
 
