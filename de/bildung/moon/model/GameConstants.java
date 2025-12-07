@@ -15,7 +15,7 @@ public final class GameConstants {
     public static final int SIDE_PANEL_WIDTH = 350;
     public static final int STARTING_MONEY = 1000;
     public static final double PIXELS_PER_METER = 1.0;
-    public static final int MONEY_PER_METER = 0.01; //1 Cent pro Meter, muss dann später auf ganze 50er gerundet werden
+    public static final double METER_PER_MONEY = 100; //1 Cent pro Meter, muss dann später auf ganze 50er gerundet werden
 
     // --- Earth Constants for Atmosphere Model ---
     public static final double SEA_LEVEL_GRAVITY = 9.81;
