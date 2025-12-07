@@ -21,7 +21,7 @@ public class GameModel {
     public final List<RocketPart> rocket = new ArrayList<>();
     public final List<Stage> stages = new ArrayList<>();
     public int playerMoney = STARTING_MONEY;
-    public PartType selectedPartType = null;
+    public RocketPart selectedPartPrototype = null;
     public boolean autoDetachEnabled = false;
     public boolean isOutOfFuel = false;
     

@@ -1,8 +1,7 @@
 package de.bildung.moon.controller;
 
-import static de.bildung.moon.model.GameConstants.*;
-
 import de.bildung.moon.model.*;
+import static de.bildung.moon.model.GameConstants.*;
 import de.bildung.moon.particle.DebrisParticle;
 import de.bildung.moon.particle.ExhaustParticle;
 import de.bildung.moon.particle.Particle;
@@ -64,7 +63,7 @@ public class PhysicsEngine {
 
         // --- 2. Abgetrennte Stufen aktualisieren ---
         for (DetachedStage ds : model.detachedStages) {
-            double stageMass = ds.parts.stream().mapToDouble(p -> p.type.mass).sum();
+            double stageMass = ds.parts.stream().mapToDouble(p -> p.mass).sum();
             if (stageMass <= 0) continue;
             double stageGravity = stageMass * getGravityAt(ds.altitude);
             double stageDrag = -DRAG_CONSTANT * getAirDensityAt(ds.altitude) * ds.velY * Math.abs(ds.velY);
@@ -85,7 +84,7 @@ public class PhysicsEngine {
         // --- 3. Masse aktualisieren ---
         model.currentTotalMass = 0;
         for (RocketPart p : model.rocket) {
-            if (!p.isDetached) model.currentTotalMass += p.type.mass + p.currentFuel;
+            if (!p.isDetached) model.currentTotalMass += p.mass + p.currentFuel;
         }
         if (model.currentTotalMass <= 0) {
             model.isOutOfFuel = true;
@@ -114,8 +113,8 @@ public class PhysicsEngine {
             model.timeSinceOutOfFuel = -1.0;
             // model.timeScale = 1.0; // Dies wird jetzt vom GameManager gesteuert
             
-            totalThrust = activeStage.stageEngines.stream().mapToDouble(e -> e.type.thrust).sum();
-            int isp = activeStage.stageEngines.getFirst().type.specificImpulse;
+            totalThrust = activeStage.stageEngines.stream().mapToDouble(e -> e.thrust).sum();
+            int isp = activeStage.stageEngines.get(0).specificImpulse;
             double fuelConsumption = (totalThrust / (isp * SEA_LEVEL_GRAVITY)) * deltaTime;
             activeStage.consumeFuel(fuelConsumption);
             
@@ -144,7 +143,7 @@ public class PhysicsEngine {
         
         double netForce = forceThrust + forceGravity + forceDrag;
         double acceleration = netForce / model.currentTotalMass;
-        model.rocketVelY += acceleration * deltaTime;
+        model.rocketVelY += -acceleration * deltaTime;
         model.gForce = Math.abs(acceleration / SEA_LEVEL_GRAVITY);
         model.altitude += -model.rocketVelY * deltaTime;
         

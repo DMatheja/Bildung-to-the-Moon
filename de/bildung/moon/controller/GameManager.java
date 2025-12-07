@@ -1,9 +1,8 @@
 package de.bildung.moon.controller;
 
-import static de.bildung.moon.model.GameConstants.*;
-
 import de.bildung.moon.*;
 import de.bildung.moon.model.*;
+import static de.bildung.moon.model.GameConstants.*;
 import de.bildung.moon.particle.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -95,7 +94,7 @@ public class GameManager implements ActionListener { // Implementiert ActionList
         } 
         // Prüfen, ob abgestürzt
         else if (model.altitude < -1.0) {
-            explode();
+            //explode();
         } else {
             model.maxAltitude = Math.max(model.altitude, model.maxAltitude);
         }
@@ -131,7 +130,7 @@ public class GameManager implements ActionListener { // Implementiert ActionList
         // Gesamtmasse berechnen
         model.currentTotalMass = 0;
         for (RocketPart p : model.rocket) {
-            model.currentTotalMass += p.type.mass + p.currentFuel;
+            model.currentTotalMass += p.mass + p.currentFuel;
         }
 
         // Game Loop starten
@@ -152,7 +151,7 @@ public class GameManager implements ActionListener { // Implementiert ActionList
 
         model.currentTotalMass = 0;
         for (RocketPart part : model.rocket) {
-            part.currentFuel = part.type.fuelCapacity;
+            part.currentFuel = part.fuelCapacity;
             part.worldX = SIDE_PANEL_WIDTH + part.gridX * CELL_SIZE;
             part.worldY = part.gridY * CELL_SIZE;
             part.isDetached = false;

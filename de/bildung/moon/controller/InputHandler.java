@@ -52,7 +52,7 @@ public class InputHandler extends MouseAdapter {
             if (model.mousePos.x < SIDE_PANEL_WIDTH) {
                 model.shopScrollY += e.getWheelRotation() * 25;
                 // TODO: Diese Logik sollte in eine UI-Management-Klasse
-                int totalItemHeight = PartType.values().length * 180;
+                int totalItemHeight = PartType.PARTS.size() * 180;
                 int visibleHeight = canvas.getHeight() - 140 - 150;
                 int maxScroll = Math.max(0, totalItemHeight - visibleHeight);
                 if (model.shopScrollY < 0) model.shopScrollY = 0;

@@ -51,7 +51,7 @@ public class BuildRenderer {
             double drawX = (model.currentState == GameState.BUILDING) ? gridStartX + part.gridX * CELL_SIZE : part.worldX;
             double drawY = (model.currentState == GameState.BUILDING) ? part.gridY * CELL_SIZE : part.worldY;
             
-            drawPart(g2d, part.type, (int) drawX, (int) drawY, 1.0f);
+            drawPart(g2d, part, (int) drawX, (int) drawY, 1.0f);
         }
     }
 
@@ -67,37 +67,37 @@ public class BuildRenderer {
         int yOffset = 150;
         int itemHeight = 160;
 
-        for (PartType type : PartType.values()) {
+        for (RocketPart proto : PartType.PARTS) {
             int itemY = (int) (yOffset - model.shopScrollY);
 
-            if (type == model.selectedPartType) {
+            if (proto == model.selectedPartPrototype) {
                 g2d.setColor(Color.YELLOW);
                 g2d.drawRect(shopX + 10, itemY, SIDE_PANEL_WIDTH - 20, itemHeight + 20);
             }
             
-            drawPart(g2d, type, shopX + 15, itemY + 45, 0.7f);
+            drawPart(g2d, proto, shopX + 15, itemY + 45, 0.7f);
 
             g2d.setColor(Color.WHITE);
             int textX = shopX + 120;
             int textY = itemY + 35;
             
             g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
-            g2d.drawString(type.name + " ($" + type.cost + ")", textX, textY);
+            g2d.drawString(proto.name + " ($" + proto.cost + ")", textX, textY);
             
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 18));
             textY += 30;
-            g2d.drawString(String.format("Mass: %.0f kg", type.mass), textX, textY);
+            g2d.drawString(String.format("Mass: %.0f kg", proto.mass), textX, textY);
             
-            if (type.fuelCapacity > 0) {
+            if (proto.fuelCapacity > 0) {
                 textY += 25;
-                g2d.drawString(String.format("Fuel: %.0f kg", type.fuelCapacity), textX, textY);
+                g2d.drawString(String.format("Fuel: %.0f kg", proto.fuelCapacity), textX, textY);
             }
             
-            if (type.thrust > 0) {
+            if (proto.thrust > 0) {
                 textY += 25;
-                g2d.drawString(String.format("Thrust: %.1f kN", type.thrust / 1000), textX, textY);
+                g2d.drawString(String.format("Thrust: %.1f kN", proto.thrust / 1000), textX, textY);
                 textY += 25;
-                g2d.drawString(String.format("Isp: %d s", type.specificImpulse), textX, textY);
+                g2d.drawString(String.format("Isp: %d s", proto.specificImpulse), textX, textY);
             }
             
             yOffset += itemHeight + 40;
@@ -114,7 +114,7 @@ public class BuildRenderer {
         g2d.drawString("Money: $" + model.playerMoney, shopX + 20, 90);
         
         double totalDryMass = 0;
-        for (RocketPart part : model.rocket) totalDryMass += part.type.mass;
+        for (RocketPart part : model.rocket) totalDryMass += part.mass;
         g2d.setFont(new Font("SansSerif", Font.PLAIN, 20));
         g2d.drawString(String.format("Dry Mass: %.0f kg", totalDryMass), shopX + 20, 120);
     }
@@ -150,7 +150,7 @@ public class BuildRenderer {
 
     private void drawGhostPart(Graphics2D g2d) {
         int gridStartX = SIDE_PANEL_WIDTH;
-        if (model.selectedPartType != null && model.mousePos.x >= gridStartX && model.mousePos.x < gridStartX + GRID_WIDTH * CELL_SIZE) {
+        if (model.selectedPartPrototype != null && model.mousePos.x >= gridStartX && model.mousePos.x < gridStartX + GRID_WIDTH * CELL_SIZE) {
             int gridX = (model.mousePos.x - gridStartX) / CELL_SIZE;
             int gridY = model.mousePos.y / CELL_SIZE;
             if (gridX >= GRID_WIDTH || gridY >= GRID_HEIGHT) return;
@@ -174,9 +174,9 @@ public class BuildRenderer {
         int y = gridY * CELL_SIZE;
         Composite old = g2d.getComposite();
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-        drawPart(g2d, model.selectedPartType, x, y, 1.0f);
+        drawPart(g2d, model.selectedPartPrototype, x, y, 1.0f);
         g2d.setComposite(old);
-        if (!BuildManager.isPlacementLegal(model, model.selectedPartType, gridX, gridY) || model.grid[gridX][gridY] != null) {
+        if (!BuildManager.isPlacementLegal(model, model.selectedPartPrototype, gridX, gridY) || model.grid[gridX][gridY] != null) {
             g2d.setColor(Color.RED);
             g2d.setStroke(new BasicStroke(4));
             g2d.drawLine(x, y, x + CELL_SIZE, y + CELL_SIZE);
@@ -184,8 +184,7 @@ public class BuildRenderer {
             g2d.setStroke(new BasicStroke(1));
         }
     }
-
-    private void drawPart(Graphics2D g2d, PartType type, int x, int y, float scale) {
+    private void drawPart(Graphics2D g2d, RocketPart part, int x, int y, float scale) {
     int size = (int) (CELL_SIZE * scale);
     int inset = (int) (CELL_SIZE * (1 - scale) / 2);
     
@@ -194,9 +193,21 @@ public class BuildRenderer {
     int drawY = y + inset;
 
     // Farbe setzen
-    g2d.setColor(type.color);
+    g2d.setColor(part.color);
 
-    // Die Form-Daten und Zeichenlogik kommen nun direkt aus dem Enum
-    type.renderShape(g2d, drawX, drawY, size);
+    // Zeichnen nach ShapeKind
+    switch (part.shapeKind) {
+        case TRIANGLE:
+            g2d.fillPolygon(new int[]{drawX, drawX + size, drawX + size / 2}, new int[]{drawY + size, drawY + size, drawY}, 3);
+            break;
+        case SQUARE:
+            g2d.fillRect(drawX, drawY, size, size);
+            break;
+        case ENGINE:
+            int nozzleInset = (int)(size * 0.2);
+            g2d.fillRect(drawX, drawY, size, size / 2);
+            g2d.fillPolygon(new int[]{drawX, drawX + size, drawX + size - nozzleInset, drawX + nozzleInset}, new int[]{drawY + size / 2, drawY + size / 2, drawY + size, drawY + size}, 4);
+            break;
+    }
     }
 }

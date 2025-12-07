@@ -83,7 +83,7 @@ public class SimulationRenderer {
     private void drawDetachedStages(Graphics2D g2d) {
         for (DetachedStage ds : model.detachedStages) {
             for (RocketPart p : ds.parts) {
-                drawPart(g2d, p.type, (int) p.worldX, (int) p.worldY, 1.0f);
+                drawPart(g2d, p, (int) p.worldX, (int) p.worldY, 1.0f);
             }
         }
     }
@@ -159,7 +159,7 @@ public class SimulationRenderer {
         for (int i = model.stages.size() - 1; i >= 0; i--) {
             Stage stage = model.stages.get(i);
             if (!stage.hasActiveEngine()) continue;
-            double capacity = stage.parts.stream().mapToDouble(p -> p.type.fuelCapacity).sum();
+            double capacity = stage.parts.stream().mapToDouble(p -> p.fuelCapacity).sum();
             if (capacity > 0) {
                 double fuelRatio = stage.getTotalCurrentFuel() / capacity;
                 g2d.setColor(Color.GRAY);
@@ -213,7 +213,7 @@ public class SimulationRenderer {
         }
     }
 
-private void drawPart(Graphics2D g2d, PartType type, int x, int y, float scale) {
+private void drawPart(Graphics2D g2d, RocketPart part, int x, int y, float scale) {
     int size = (int) (CELL_SIZE * scale);
     int inset = (int) (CELL_SIZE * (1 - scale) / 2);
     
@@ -222,10 +222,22 @@ private void drawPart(Graphics2D g2d, PartType type, int x, int y, float scale) 
     int drawY = y + inset;
 
     // Farbe setzen
-    g2d.setColor(type.color);
+    g2d.setColor(part.color);
 
-    // Die Form-Daten und Zeichenlogik kommen nun direkt aus dem Enum
-    type.renderShape(g2d, drawX, drawY, size);
+    // Zeichnen nach ShapeKind
+    switch (part.shapeKind) {
+        case TRIANGLE:
+            g2d.fillPolygon(new int[]{drawX, drawX + size, drawX + size / 2}, new int[]{drawY + size, drawY + size, drawY}, 3);
+            break;
+        case SQUARE:
+            g2d.fillRect(drawX, drawY, size, size);
+            break;
+        case ENGINE:
+            int nozzleInset = (int)(size * 0.2);
+            g2d.fillRect(drawX, drawY, size, size / 2);
+            g2d.fillPolygon(new int[]{drawX, drawX + size, drawX + size - nozzleInset, drawX + nozzleInset}, new int[]{drawY + size / 2, drawY + size / 2, drawY + size, drawY + size}, 4);
+            break;
+    }
 }
 
     private void drawPlacedParts(Graphics2D g2d) {
@@ -237,7 +249,7 @@ private void drawPart(Graphics2D g2d, PartType type, int x, int y, float scale) 
             double drawX = (model.currentState == GameState.BUILDING) ? gridStartX + part.gridX * CELL_SIZE : part.worldX;
             double drawY = (model.currentState == GameState.BUILDING) ? part.gridY * CELL_SIZE : part.worldY;
 
-            drawPart(g2d, part.type, (int) drawX, (int) drawY, 1.0f);
+            drawPart(g2d, part, (int) drawX, (int) drawY, 1.0f);
         }
     }
 }

@@ -31,30 +31,30 @@ public class BuildManager {
      * Versucht, ein Teil auf dem Gitter zu platzieren.
      */
     public void tryPlacePart(int gridX, int gridY) {
-        if (model.selectedPartType == null || model.grid[gridX][gridY] != null) return;
+        if (model.selectedPartPrototype == null || model.grid[gridX][gridY] != null) return;
 
         int mirroredX = (GRID_WIDTH - 1) - gridX;
         boolean isCenter = (gridX == mirroredX);
 
         if (isCenter) {
-            if (model.playerMoney >= model.selectedPartType.cost && isPlacementLegal(model, model.selectedPartType, gridX, gridY)) {
-                model.playerMoney -= model.selectedPartType.cost;
-                RocketPart newPart = new RocketPart(model.selectedPartType, gridX, gridY);
+            if (model.playerMoney >= model.selectedPartPrototype.cost && isPlacementLegal(model, model.selectedPartPrototype, gridX, gridY)) {
+                model.playerMoney -= model.selectedPartPrototype.cost;
+                RocketPart newPart = model.selectedPartPrototype.copyForGrid(gridX, gridY);
                 model.grid[gridX][gridY] = newPart;
                 model.rocket.add(newPart);
                 recalculateStages(model);
             }
         } else {
-            if (model.playerMoney < model.selectedPartType.cost * 2 || model.grid[mirroredX][gridY] != null) return;
+            if (model.playerMoney < model.selectedPartPrototype.cost * 2 || model.grid[mirroredX][gridY] != null) return;
 
-            if (isPlacementLegal(model, model.selectedPartType, gridX, gridY) && isPlacementLegal(model, model.selectedPartType, mirroredX, gridY)) {
-                model.playerMoney -= model.selectedPartType.cost * 2;
+            if (isPlacementLegal(model, model.selectedPartPrototype, gridX, gridY) && isPlacementLegal(model, model.selectedPartPrototype, mirroredX, gridY)) {
+                model.playerMoney -= model.selectedPartPrototype.cost * 2;
 
-                RocketPart part1 = new RocketPart(model.selectedPartType, gridX, gridY);
+                RocketPart part1 = model.selectedPartPrototype.copyForGrid(gridX, gridY);
                 model.grid[gridX][gridY] = part1;
                 model.rocket.add(part1);
 
-                RocketPart part2 = new RocketPart(model.selectedPartType, mirroredX, gridY);
+                RocketPart part2 = model.selectedPartPrototype.copyForGrid(mirroredX, gridY);
                 model.grid[mirroredX][gridY] = part2;
                 model.rocket.add(part2);
 
@@ -72,19 +72,19 @@ public class BuildManager {
             int mirroredX = (GRID_WIDTH - 1) - gridX;
             boolean isCenter = (gridX == mirroredX);
 
-            if (isCenter) {
-                model.playerMoney += partToRemove.type.cost;
+                if (isCenter) {
+                model.playerMoney += partToRemove.cost;
                 model.grid[gridX][gridY] = null;
                 model.rocket.remove(partToRemove);
             } else {
                 RocketPart mirroredPart = model.grid[mirroredX][gridY];
 
-                model.playerMoney += partToRemove.type.cost;
+                model.playerMoney += partToRemove.cost;
                 model.grid[gridX][gridY] = null;
                 model.rocket.remove(partToRemove);
 
                 if (mirroredPart != null) {
-                    model.playerMoney += mirroredPart.type.cost;
+                    model.playerMoney += mirroredPart.cost;
                     model.grid[mirroredX][gridY] = null;
                     model.rocket.remove(mirroredPart);
                 }
@@ -99,23 +99,22 @@ public class BuildManager {
     public void selectPartFromShop(Point clickPos) {
         int shopItemHeight = 160;
         int yOffset = 150;
-        for (PartType type : PartType.values()) {
+        for (RocketPart proto : PartType.PARTS) {
             Rectangle itemBounds = new Rectangle(10, (int) (yOffset - model.shopScrollY), SIDE_PANEL_WIDTH - 20, shopItemHeight + 20);
             if (itemBounds.contains(clickPos)) {
-                model.selectedPartType = type;
+                model.selectedPartPrototype = proto;
                 break;
             }
             yOffset += shopItemHeight + 40;
         }
     }
-
     /**
      * Prüft, ob ein Teil an einer bestimmten Position platziert werden darf.
      */
-    public static boolean isPlacementLegal(GameModel model, PartType partType, int x, int y) {
+    public static boolean isPlacementLegal(GameModel model, RocketPart prototype, int x, int y) {
         if (model.rocket.isEmpty()) {
             // Das erste Teil muss ein Cockpit sein und in der Mitte platziert werden
-            return partType == PartType.COCKPIT && x == GRID_WIDTH / 2;
+            return prototype.category == PartType.COCKPIT && x == GRID_WIDTH / 2;
         }
 
         // Muss an ein vorhandenes Teil angrenzen
@@ -124,33 +123,33 @@ public class BuildManager {
         if (!isAdjacent) return false;
 
         // Triebwerks-Logik
-        if (partType.thrust > 0) {
+        if (prototype.thrust > 0) {
             // Darf nicht über/unter einem anderen Triebwerk platziert werden
             if (y > 0) {
                 for (int i = 0; i < GRID_WIDTH; i++) {
-                    if (model.grid[i][y - 1] != null && model.grid[i][y - 1].type.thrust > 0) return false;
+                    if (model.grid[i][y - 1] != null && model.grid[i][y - 1].thrust > 0) return false;
                 }
             }
             if (y < GRID_HEIGHT - 1) {
                 for (int i = 0; i < GRID_WIDTH; i++) {
-                    if (model.grid[i][y + 1] != null && model.grid[i][y + 1].type.thrust > 0) return false;
+                    if (model.grid[i][y + 1] != null && model.grid[i][y + 1].thrust > 0) return false;
                 }
             }
             // Darf nicht auf gleicher Höhe wie ein Tank platziert werden
             for (int i = 0; i < GRID_WIDTH; i++) {
-                if (model.grid[i][y] != null && model.grid[i][y].type == PartType.FUEL_TANK) return false;
+                if (model.grid[i][y] != null && model.grid[i][y].category == PartType.FUEL_TANK) return false;
             }
             
             // Muss unter einem Treibstofftank platziert werden
             RocketPart partAbove = (y > 0) ? model.grid[x][y - 1] : null;
-            return partAbove != null && partAbove.type == PartType.FUEL_TANK;
+            return partAbove != null && partAbove.category == PartType.FUEL_TANK;
         }
 
         // Tank-Logik
-        if (partType == PartType.FUEL_TANK) {
+        if (prototype.category == PartType.FUEL_TANK) {
             // Darf nicht auf gleicher Höhe wie ein Triebwerk platziert werden
             for (int i = 0; i < GRID_WIDTH; i++) {
-                if (model.grid[i][y] != null && model.grid[i][y].type.thrust > 0) return false;
+                if (model.grid[i][y] != null && model.grid[i][y].thrust > 0) return false;
             }
         }
 
@@ -162,28 +161,27 @@ public class BuildManager {
      */
     public static void recalculateStages(GameModel model) {
         model.stages.clear();
-        List<RocketPart> allEngines = model.rocket.stream().filter(p -> p.type.thrust > 0).toList();
+        List<RocketPart> allEngines = model.rocket.stream().filter(p -> p.thrust > 0).toList();
         List<RocketPart> unassignedParts = new ArrayList<>(model.rocket);
-        
         allEngines.stream()
             .collect(Collectors.groupingBy(e -> e.gridY))
             .values().stream()
-            .sorted(Comparator.comparingInt(list -> list.getFirst().gridY)) // Sortiert von oben nach unten
+            .sorted(Comparator.comparingInt(list -> list.get(0).gridY)) // Sortiert von oben nach unten
             .forEach(engineGroup -> {
                 Stage newStage = new Stage(engineGroup);
                 List<RocketPart> partsToSearch = new ArrayList<>(engineGroup);
                 while (!partsToSearch.isEmpty()) {
-                    RocketPart current = partsToSearch.removeFirst();
+                    RocketPart current = partsToSearch.remove(0);
                     if (unassignedParts.contains(current) && !newStage.parts.contains(current)) {
                         newStage.parts.add(current);
                         unassignedParts.remove(current);
                         int x = current.gridX, y = current.gridY;
                         // Suche nach oben, links, rechts (aber nicht nach unten)
-                        if (y > 0 && model.grid[x][y - 1] != null && model.grid[x][y - 1].type.thrust == 0)
+                        if (y > 0 && model.grid[x][y - 1] != null && model.grid[x][y - 1].thrust == 0)
                             partsToSearch.add(model.grid[x][y - 1]);
-                        if (x > 0 && model.grid[x - 1][y] != null && model.grid[x - 1][y].type.thrust == 0)
+                        if (x > 0 && model.grid[x - 1][y] != null && model.grid[x - 1][y].thrust == 0)
                             partsToSearch.add(model.grid[x - 1][y]);
-                        if (x < GRID_WIDTH - 1 && model.grid[x + 1][y] != null && model.grid[x + 1][y].type.thrust == 0)
+                        if (x < GRID_WIDTH - 1 && model.grid[x + 1][y] != null && model.grid[x + 1][y].thrust == 0)
                             partsToSearch.add(model.grid[x + 1][y]);
                     }
                 }
