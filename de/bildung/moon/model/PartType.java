@@ -59,6 +59,17 @@ public enum PartType {
         requiredLevel = reqLevel; // Standardmäßig Level 1
     }
 
+    /**
+     * Gibt die Farbe zurück. Wenn das Spieler-Level zu niedrig ist, wird Grau zurückgegeben.
+     * Nutze dies im GameCanvas für die Shop-Anzeige.
+     */
+    public Color getDisplayColor(int playerLevel) {
+        if (playerLevel < this.requiredLevel) {
+            return Color.GRAY; // Ausgegraut
+        }
+        return this.color; // Normale Farbe
+    }
+
     // Abstrakte Methode, die jedes Enum-Element implementieren muss
     public abstract void renderShape(Graphics2D g2d, int x, int y, int size);
 
