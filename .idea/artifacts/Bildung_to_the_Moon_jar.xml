@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Bildung-to-the-Moon:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Bildung_to_the_Moon_jar</output-path>
+    <root id="archive" name="Bildung-to-the-Moon.jar">
+      <element id="module-output" name="Bildung-to-the-Moon" />
+    </root>
+  </artifact>
+</component>

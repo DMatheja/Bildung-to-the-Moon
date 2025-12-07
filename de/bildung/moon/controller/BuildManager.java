@@ -1,9 +1,6 @@
 package de.bildung.moon.controller;
 
-import de.bildung.moon.model.GameModel;
-import de.bildung.moon.model.PartType;
-import de.bildung.moon.model.RocketPart;
-import de.bildung.moon.model.Stage;
+import de.bildung.moon.model.*;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -66,8 +63,8 @@ public class BuildManager {
     public void removePart(int gridX, int gridY) {
         RocketPart partToRemove = model.grid[gridX][gridY];
         if (partToRemove != null) {
-            if(partToRemove.type == PartType.COCKPIT && model.rocket.size() > 1){
-                if(model.rocket.stream().filter(p -> p.type == PartType.COCKPIT).count() == 1) return;
+            if(partToRemove.type.superType == PartSuperType.COCKPIT && model.rocket.size() > 1){
+                if(model.rocket.stream().filter(p -> p.type.superType == PartSuperType.COCKPIT).count() == 1) return;
             }
             int mirroredX = (GRID_WIDTH - 1) - gridX;
             boolean isCenter = (gridX == mirroredX);
@@ -121,7 +118,7 @@ public class BuildManager {
 
     public static boolean isPlacementLegal(GameModel model, PartType partType, int x, int y) {
         if (model.rocket.isEmpty()) {
-            return partType == PartType.COCKPIT && x == GRID_WIDTH / 2;
+            return partType.superType == PartSuperType.COCKPIT && x == GRID_WIDTH / 2;
         }
 
         boolean isAdjacent = (y > 0 && model.grid[x][y - 1] != null) || (y < GRID_HEIGHT - 1 && model.grid[x][y + 1] != null) ||
@@ -140,14 +137,14 @@ public class BuildManager {
                 }
             }
             for (int i = 0; i < GRID_WIDTH; i++) {
-                if (model.grid[i][y] != null && model.grid[i][y].type == PartType.FUEL_TANK) return false;
+                if (model.grid[i][y] != null && model.grid[i][y].type.superType == PartSuperType.FUEL_TANK) return false;
             }
 
             RocketPart partAbove = (y > 0) ? model.grid[x][y - 1] : null;
-            return partAbove != null && partAbove.type == PartType.FUEL_TANK;
+            return partAbove != null && partAbove.type.superType == PartSuperType.FUEL_TANK;
         }
 
-        if (partType == PartType.FUEL_TANK) {
+        if (partType.superType == PartSuperType.FUEL_TANK) {
             for (int i = 0; i < GRID_WIDTH; i++) {
                 if (model.grid[i][y] != null && model.grid[i][y].type.thrust > 0) return false;
             }
