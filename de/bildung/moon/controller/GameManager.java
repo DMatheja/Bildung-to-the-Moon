@@ -145,7 +145,7 @@ public class GameManager implements ActionListener { // Implementiert ActionList
      * Setzt das Spiel in den Bau-Modus zurück.
      */
     public void resetToBuilding() {
-        int earnedMoney = (int) (model.maxAltitude * MONEY_PER_METER);
+        int earnedMoney = (int) (model.maxAltitude / METER_PER_MONEY);
         stopGameLoop();
         model.currentState = GameState.BUILDING;
         model.detachedStages.clear();
