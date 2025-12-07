@@ -15,7 +15,6 @@ import static de.bildung.moon.model.GameConstants.*;
 
 /**
  * Verwaltet die gesamte Logik, die im Hangar (BUILDING State) stattfindet.
- * Platzieren, Entfernen, Staging berechnen.
  */
 public class BuildManager {
 
@@ -24,8 +23,6 @@ public class BuildManager {
     public BuildManager(GameModel model) {
         this.model = model;
     }
-
-
 
     /**
      * Versucht, ein Teil auf dem Gitter zu platzieren.
@@ -95,6 +92,7 @@ public class BuildManager {
 
     /**
      * Wählt ein Teil aus dem Shop basierend auf der Klickposition aus.
+     * Blockiert die Auswahl, wenn das Level zu niedrig ist.
      */
     public void selectPartFromShop(Point clickPos) {
         int shopItemHeight = 160;
@@ -102,30 +100,32 @@ public class BuildManager {
         for (PartType type : PartType.values()) {
             Rectangle itemBounds = new Rectangle(10, (int) (yOffset - model.shopScrollY), SIDE_PANEL_WIDTH - 20, shopItemHeight + 20);
             if (itemBounds.contains(clickPos)) {
-                model.selectedPartType = type;
+
+                // --- PROGRESSION CHECK ---
+                // Prüfen, ob das Level des Spielers ausreicht
+                if (model.currentLevel >= type.requiredLevel) {
+                    model.selectedPartType = type;
+                } else {
+                    // Level zu niedrig: Teil wird nicht ausgewählt.
+                    // Optional: Hier könnte man ein Sound-Feedback abspielen.
+                    System.out.println("Teil gesperrt! Benötigt Level " + type.requiredLevel);
+                }
                 break;
             }
             yOffset += shopItemHeight + 40;
         }
     }
 
-    /**
-     * Prüft, ob ein Teil an einer bestimmten Position platziert werden darf.
-     */
     public static boolean isPlacementLegal(GameModel model, PartType partType, int x, int y) {
         if (model.rocket.isEmpty()) {
-            // Das erste Teil muss ein Cockpit sein und in der Mitte platziert werden
             return partType == PartType.COCKPIT && x == GRID_WIDTH / 2;
         }
 
-        // Muss an ein vorhandenes Teil angrenzen
         boolean isAdjacent = (y > 0 && model.grid[x][y - 1] != null) || (y < GRID_HEIGHT - 1 && model.grid[x][y + 1] != null) ||
-                             (x > 0 && model.grid[x - 1][y] != null) || (x < GRID_WIDTH - 1 && model.grid[x + 1][y] != null);
+                (x > 0 && model.grid[x - 1][y] != null) || (x < GRID_WIDTH - 1 && model.grid[x + 1][y] != null);
         if (!isAdjacent) return false;
 
-        // Triebwerks-Logik
         if (partType.thrust > 0) {
-            // Darf nicht über/unter einem anderen Triebwerk platziert werden
             if (y > 0) {
                 for (int i = 0; i < GRID_WIDTH; i++) {
                     if (model.grid[i][y - 1] != null && model.grid[i][y - 1].type.thrust > 0) return false;
@@ -136,19 +136,15 @@ public class BuildManager {
                     if (model.grid[i][y + 1] != null && model.grid[i][y + 1].type.thrust > 0) return false;
                 }
             }
-            // Darf nicht auf gleicher Höhe wie ein Tank platziert werden
             for (int i = 0; i < GRID_WIDTH; i++) {
                 if (model.grid[i][y] != null && model.grid[i][y].type == PartType.FUEL_TANK) return false;
             }
-            
-            // Muss unter einem Treibstofftank platziert werden
+
             RocketPart partAbove = (y > 0) ? model.grid[x][y - 1] : null;
             return partAbove != null && partAbove.type == PartType.FUEL_TANK;
         }
 
-        // Tank-Logik
         if (partType == PartType.FUEL_TANK) {
-            // Darf nicht auf gleicher Höhe wie ein Triebwerk platziert werden
             for (int i = 0; i < GRID_WIDTH; i++) {
                 if (model.grid[i][y] != null && model.grid[i][y].type.thrust > 0) return false;
             }
@@ -157,44 +153,39 @@ public class BuildManager {
         return true;
     }
 
-    /**
-     * Berechnet die Stufentrennung neu (z.B. nach Hinzufügen/Entfernen eines Teils).
-     */
     public static void recalculateStages(GameModel model) {
         model.stages.clear();
         List<RocketPart> allEngines = model.rocket.stream().filter(p -> p.type.thrust > 0).toList();
         List<RocketPart> unassignedParts = new ArrayList<>(model.rocket);
-        
+
         allEngines.stream()
-            .collect(Collectors.groupingBy(e -> e.gridY))
-            .values().stream()
-            .sorted(Comparator.comparingInt(list -> list.getFirst().gridY)) // Sortiert von oben nach unten
-            .forEach(engineGroup -> {
-                Stage newStage = new Stage(engineGroup);
-                List<RocketPart> partsToSearch = new ArrayList<>(engineGroup);
-                while (!partsToSearch.isEmpty()) {
-                    RocketPart current = partsToSearch.removeFirst();
-                    if (unassignedParts.contains(current) && !newStage.parts.contains(current)) {
-                        newStage.parts.add(current);
-                        unassignedParts.remove(current);
-                        int x = current.gridX, y = current.gridY;
-                        // Suche nach oben, links, rechts (aber nicht nach unten)
-                        if (y > 0 && model.grid[x][y - 1] != null && model.grid[x][y - 1].type.thrust == 0)
-                            partsToSearch.add(model.grid[x][y - 1]);
-                        if (x > 0 && model.grid[x - 1][y] != null && model.grid[x - 1][y].type.thrust == 0)
-                            partsToSearch.add(model.grid[x - 1][y]);
-                        if (x < GRID_WIDTH - 1 && model.grid[x + 1][y] != null && model.grid[x + 1][y].type.thrust == 0)
-                            partsToSearch.add(model.grid[x + 1][y]);
+                .collect(Collectors.groupingBy(e -> e.gridY))
+                .values().stream()
+                .sorted(Comparator.comparingInt(list -> list.getFirst().gridY))
+                .forEach(engineGroup -> {
+                    Stage newStage = new Stage(engineGroup);
+                    List<RocketPart> partsToSearch = new ArrayList<>(engineGroup);
+                    while (!partsToSearch.isEmpty()) {
+                        RocketPart current = partsToSearch.removeFirst();
+                        if (unassignedParts.contains(current) && !newStage.parts.contains(current)) {
+                            newStage.parts.add(current);
+                            unassignedParts.remove(current);
+                            int x = current.gridX, y = current.gridY;
+                            if (y > 0 && model.grid[x][y - 1] != null && model.grid[x][y - 1].type.thrust == 0)
+                                partsToSearch.add(model.grid[x][y - 1]);
+                            if (x > 0 && model.grid[x - 1][y] != null && model.grid[x - 1][y].type.thrust == 0)
+                                partsToSearch.add(model.grid[x - 1][y]);
+                            if (x < GRID_WIDTH - 1 && model.grid[x + 1][y] != null && model.grid[x + 1][y].type.thrust == 0)
+                                partsToSearch.add(model.grid[x + 1][y]);
+                        }
                     }
-                }
-                model.stages.add(newStage);
-            });
-        
-        // Teile ohne Triebwerke (z.B. Cockpit) werden zur obersten Stufe
+                    model.stages.add(newStage);
+                });
+
         if (!unassignedParts.isEmpty()) {
             Stage finalStage = new Stage();
             finalStage.parts.addAll(unassignedParts);
-            model.stages.add(0, finalStage); // Fügt die Endstufe (Cockpit) am Anfang der Liste hinzu
+            model.stages.add(0, finalStage);
         }
     }
 }

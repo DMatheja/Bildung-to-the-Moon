@@ -145,7 +145,19 @@ public class GameManager implements ActionListener { // Implementiert ActionList
      * Setzt das Spiel in den Bau-Modus zurück.
      */
     public void resetToBuilding() {
+        //Money Logik
         int earnedMoney = (int) (model.maxAltitude / METER_PER_MONEY);
+        //Level Logik
+        if (model.maxAltitude > model.highScoreAltitude) {
+            model.highScoreAltitude = model.maxAltitude;
+
+            // Level-Check: Level 2 ab 35km, Level 3 ab 1000km
+            if (model.highScoreAltitude >= 100000) {
+                model.currentLevel = 3;
+            } else if (model.highScoreAltitude >= 35000) {
+                model.currentLevel = 2;
+            }
+        }
         stopGameLoop();
         model.currentState = GameState.BUILDING;
         model.detachedStages.clear();
