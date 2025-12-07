@@ -43,7 +43,7 @@ public class Stage {
     public void consumeFuel(double amount) {
         List<RocketPart> fuelTanks = new ArrayList<>();
         for (RocketPart p : parts) {
-            if (p.type.superType == PartSuperType.FUEL_TANK && p.currentFuel > 0) {
+            if (p.type.fuelCapacity > 0 && p.currentFuel > 0) {
                 fuelTanks.add(p);
             }
         }

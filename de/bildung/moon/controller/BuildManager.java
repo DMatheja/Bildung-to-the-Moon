@@ -16,6 +16,7 @@ import static de.bildung.moon.model.GameConstants.*;
 public class BuildManager {
 
     private final GameModel model;
+    private boolean placing = false;
 
     public BuildManager(GameModel model) {
         this.model = model;
@@ -25,7 +26,14 @@ public class BuildManager {
      * Versucht, ein Teil auf dem Gitter zu platzieren.
      */
     public void tryPlacePart(int gridX, int gridY) {
-        if (model.selectedPartType == null || model.grid[gridX][gridY] != null) return;
+        if (model.selectedPartType == null) return;
+        if( model.grid[gridX][gridY] != null){
+            if(model.grid[gridX][gridY].type.superType == model.selectedPartType.superType){
+                placing = true; //hack um auch cockpits entfernen zu können
+                removePart(gridX,gridY);
+                placing = false;
+            }else return;
+        }
 
         int mirroredX = (GRID_WIDTH - 1) - gridX;
         boolean isCenter = (gridX == mirroredX);
@@ -63,7 +71,7 @@ public class BuildManager {
     public void removePart(int gridX, int gridY) {
         RocketPart partToRemove = model.grid[gridX][gridY];
         if (partToRemove != null) {
-            if(partToRemove.type.superType == PartSuperType.COCKPIT && model.rocket.size() > 1){
+            if(!placing && partToRemove.type.superType == PartSuperType.COCKPIT && model.rocket.size() > 1){
                 if(model.rocket.stream().filter(p -> p.type.superType == PartSuperType.COCKPIT).count() == 1) return;
             }
             int mirroredX = (GRID_WIDTH - 1) - gridX;

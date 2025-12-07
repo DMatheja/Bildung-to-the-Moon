@@ -141,12 +141,12 @@ public class SimulationRenderer {
         //2theMoon Meter
         double moonDistRatio = (LUNAR_DISTANCE - model.altitude)/LUNAR_DISTANCE;
         g2d.setColor(Color.GRAY);
-        g2d.drawRect(uiStartX + 313, 30, 30, 290);
+        g2d.drawRect(uiStartX + 350, 30, 30, 290);
         g2d.setColor(Color.BLUE.brighter());
-        g2d.fillRect(uiStartX + 313+2, 30+2, 26, (int) (286 * moonDistRatio));
+        g2d.fillRect(uiStartX + 350+2, 30+2, 26, (int) (286 * moonDistRatio));
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
-        g2d.drawString("Distance to Moon", uiStartX + 170, 25);
+        g2d.drawString("Distance to Moon", uiStartX + 200, 25);
 
         if (model.timeScale > 1.0) {
             g2d.setColor(Color.CYAN);

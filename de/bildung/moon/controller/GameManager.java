@@ -66,7 +66,7 @@ public class GameManager implements ActionListener { // Implementiert ActionList
     }
 
     private void handleTimeWarp(double actualDeltaTime) {
-        if (model.currentState != GameState.LAUNCHING || !model.isOutOfFuel) {
+        if (model.currentState != GameState.LAUNCHING /*|| !model.isOutOfFuel*/) {
             model.timeScale = 1.0;
             return;
         }
@@ -76,7 +76,7 @@ public class GameManager implements ActionListener { // Implementiert ActionList
              model.timeSinceOutOfFuel += actualDeltaTime;
         }
         
-        if (model.timeSinceOutOfFuel > 1.0) {
+        //if (model.timeSinceOutOfFuel > 1.0) {
             if (model.altitude < 1000) model.timeScale = 1.0;
             else if (Math.abs(model.rocketVelY) < 100 && model.altitude > 80000) model.timeScale = 100.0;
             else if (model.altitude > 10000000) model.timeScale = 200.0;
@@ -86,9 +86,9 @@ public class GameManager implements ActionListener { // Implementiert ActionList
             else if (model.altitude > 20000) model.timeScale = 10.0;
             else if (model.altitude > 5000) model.timeScale = 5.0;
             else model.timeScale = 2.0;
-        } else {
-            model.timeScale = 1.0;
-        }
+//        } else {
+//            model.timeScale = 1.0;
+//        }
     }
 
     private void checkGameStatus() {

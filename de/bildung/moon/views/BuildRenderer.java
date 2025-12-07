@@ -215,7 +215,8 @@ public class BuildRenderer {
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
         drawPart(g2d, model.selectedPartType, x, y, 1.0f);
         g2d.setComposite(old);
-        if (!BuildManager.isPlacementLegal(model, model.selectedPartType, gridX, gridY) || model.grid[gridX][gridY] != null) {
+        if (!BuildManager.isPlacementLegal(model, model.selectedPartType, gridX, gridY)
+                || (model.grid[gridX][gridY] != null && model.grid[gridX][gridY].type.superType != model.selectedPartType.superType)) {
             g2d.setColor(Color.RED);
             g2d.setStroke(new BasicStroke(4));
             g2d.drawLine(x, y, x + CELL_SIZE, y + CELL_SIZE);
