@@ -19,42 +19,42 @@ public enum PartType {
         }
     },
     // Level 3: Mercury Capsule
-    MERCURY_COCKPIT("Mercury Capsule", 400, Color.GREEN, 12, 50, 0, 0, 3, PartSuperType.COCKPIT) {
+    MERCURY_COCKPIT("Mercury Capsule", 400, Color.GREEN, 15, 110, 0, 0, 3, PartSuperType.COCKPIT) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             drawCockpit(g2d, x, y, size);
         }
     },
     // Level 1: Kleiner Tank
-    BASIC_FUEL_TANK("Fuel Tank", 100, Color.LIGHT_GRAY, 10, 200, 0, 0, 1, PartSuperType.FUEL_TANK) {
+    BASIC_FUEL_TANK("Fuel Tank", 100, Color.LIGHT_GRAY, 20, 200, 0, 0, 1, PartSuperType.FUEL_TANK) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             drawTank(g2d, x, y, size);
         }
     },
     // Level 2: Saturn V First Stage Tank
-    SATURN_FUEL_TANK("Saturn V First Stage Tank", 150, Color.LIGHT_GRAY.darker(), 30, 500, 0, 0, 2, PartSuperType.FUEL_TANK) {
+    SATURN_FUEL_TANK("Saturn V First Stage Tank", 150, Color.LIGHT_GRAY.darker(), 40, 500, 0, 0, 2, PartSuperType.FUEL_TANK) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             drawTank(g2d, x, y, size);
         }
     },
     // Level 3: Proton UR-500 Tanks
-    PROTON_FUEL_TANK("Proton UR-500 Tanks", 300, Color.LIGHT_GRAY.brighter(), 5, 150, 0, 0, 3, PartSuperType.FUEL_TANK) {
+    PROTON_FUEL_TANK("Proton UR-500 Tanks", 300, Color.LIGHT_GRAY.brighter(), 10, 150, 0, 0, 3, PartSuperType.FUEL_TANK) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             drawTank(g2d, x, y, size);
         }
     },
     // Level 1: Schwache Engine (V2 Stil)
-    A4_ENGINE("A-4 Engine", 250, Color.decode("#C0C0C0"), 80, 0, 8000, 150, 1, PartSuperType.ENGINE) {
+    A4_ENGINE("A-4 Engine", 250, Color.decode("#C0C0C0"), 30, 0, 8000, 200, 1, PartSuperType.ENGINE) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             drawEngine(g2d, x, y, size);
         }
     },
     // Level 2: Starke Engine
-    ENGINE_T1("T1 Engine", 500, Color.ORANGE, 100, 0, 55000, 100, 2, PartSuperType.ENGINE) {
+    ENGINE_T1("T1 Engine", 500, Color.ORANGE, 40, 0, 55000, 150, 2, PartSuperType.ENGINE) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             drawEngine(g2d, x, y, size);
@@ -62,7 +62,7 @@ public enum PartType {
     },
     // Level 3: Ionen-Antrieb (Neu)
     // Hoher ISP (400) für Effizienz, aber sehr niedriger Schub (4000), kann kaum das Eigengewicht heben.
-    ION_DRIVE("Ion Drive", 2000, Color.decode("#00008B"), 100, 0, 4500, 420, 3, PartSuperType.ENGINE) {
+    ION_DRIVE("Ion Drive", 2000, Color.decode("#00008B"), 40, 0, 4500, 600, 3, PartSuperType.ENGINE) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             // Spezielle Optik für Ionen-Antrieb: Breiter, flacher Auslass

@@ -158,9 +158,9 @@ public class GameManager implements ActionListener { // Implementiert ActionList
             model.highScoreAltitude = model.maxAltitude;
 
             // Level-Check: Level 2 ab 35km, Level 3 ab 1000km
-            if (model.highScoreAltitude >= 100000) {
+            if (model.highScoreAltitude >= 1000000) {
                 model.currentLevel = 3;
-            } else if (model.highScoreAltitude >= 35000) {
+            } else if (model.highScoreAltitude >= 100000) {
                 model.currentLevel = 2;
             }
         }
