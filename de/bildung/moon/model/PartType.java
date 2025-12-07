@@ -5,7 +5,7 @@ import java.awt.Graphics2D;
 
 public enum PartType {
     // Level 1: Basics
-    COCKPIT("Cockpit", 200, Color.CYAN, 10, 0, 0, 0, 1) {
+    COCKPIT("Cockpit", 200, Color.CYAN, 10, 0, 0, 0, 1, PartSuperType.COCKPIT) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             // Dreieck
@@ -17,7 +17,7 @@ public enum PartType {
         }
     },
     // Level 1: Kleiner Tank
-    FUEL_TANK("Fuel Tank", 100, Color.LIGHT_GRAY, 10, 200, 0, 0, 1) {
+    FUEL_TANK("Fuel Tank", 100, Color.LIGHT_GRAY, 10, 200, 0, 0, 1, PartSuperType.FUEL_TANK) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             // Quadrat
@@ -25,14 +25,14 @@ public enum PartType {
         }
     },
     // Level 1: Schwache Engine (V2 Stil)
-    A4_ENGINE("A-4 Engine", 250, Color.decode("#C0C0C0"), 100, 0, 8000, 100, 1) {
+    A4_ENGINE("A-4 Engine", 250, Color.decode("#C0C0C0"), 100, 0, 8000, 100, 1, PartSuperType.ENGINE) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             drawEngine(g2d, x, y, size);
         }
     },
     // Level 2: Starke Engine
-    ENGINE_T1("T1 Engine", 500, Color.ORANGE, 100, 0, 50000, 100, 2) {
+    ENGINE_T1("T1 Engine", 500, Color.ORANGE, 100, 0, 50000, 100, 2, PartSuperType.ENGINE) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             drawEngine(g2d, x, y, size);
@@ -40,7 +40,7 @@ public enum PartType {
     },
     // Level 3: Ionen-Antrieb (Neu)
     // Hoher ISP (400) für Effizienz, aber sehr niedriger Schub (4000), kann kaum das Eigengewicht heben.
-    ION_DRIVE("Ion Drive", 2000, Color.decode("#00008B"), 100, 0, 4000, 420, 3) {
+    ION_DRIVE("Ion Drive", 2000, Color.decode("#00008B"), 100, 0, 4000, 420, 3, PartSuperType.ENGINE) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             // Spezielle Optik für Ionen-Antrieb: Breiter, flacher Auslass
@@ -62,8 +62,9 @@ public enum PartType {
     public final double thrust;
     public final int specificImpulse; // ISP: Maß für die Effizienz
     public final int requiredLevel;
+    public final PartSuperType superType;
 
-    PartType(String n, int c, Color cl, double m, double fc, double t, int isp, int reqLevel) {
+    PartType(String n, int c, Color cl, double m, double fc, double t, int isp, int reqLevel, PartSuperType type) {
         name = n;
         cost = c;
         color = cl;
@@ -72,6 +73,7 @@ public enum PartType {
         thrust = t;
         specificImpulse = isp;
         requiredLevel = reqLevel;
+        superType = type;
     }
 
     /**
