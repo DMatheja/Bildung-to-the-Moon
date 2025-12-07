@@ -66,6 +66,9 @@ public class BuildManager {
     public void removePart(int gridX, int gridY) {
         RocketPart partToRemove = model.grid[gridX][gridY];
         if (partToRemove != null) {
+            if(partToRemove.type == PartType.COCKPIT && model.rocket.size() > 1){
+                if(model.rocket.stream().filter(p -> p.type == PartType.COCKPIT).count() == 1) return;
+            }
             int mirroredX = (GRID_WIDTH - 1) - gridX;
             boolean isCenter = (gridX == mirroredX);
 
