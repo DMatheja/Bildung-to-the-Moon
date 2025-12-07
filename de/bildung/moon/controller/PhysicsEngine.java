@@ -7,6 +7,8 @@ import de.bildung.moon.particle.DebrisParticle;
 import de.bildung.moon.particle.ExhaustParticle;
 import de.bildung.moon.particle.Particle;
 
+//TODO: implement Moon
+
 /**
  * Enthält die gesamte Physik-Logik für den Raketenflug.
  * Wird vom GameManager im Game-Loop aufgerufen.
@@ -173,7 +175,8 @@ public class PhysicsEngine {
      * Berechnet die Schwerkraft in einer bestimmten Höhe.
      */
     public static double getGravityAt(double alt) {
-        return SEA_LEVEL_GRAVITY * Math.pow(EARTH_RADIUS / (EARTH_RADIUS + alt), 2);
+        return SEA_LEVEL_GRAVITY * Math.pow(EARTH_RADIUS / (EARTH_RADIUS + alt), 2) -
+                    MOON_SURFACE_GRAVITY * Math.pow(MOON_RADIUS/ (MOON_RADIUS + LUNAR_DISTANCE - alt ), 2);
     }
 }
 

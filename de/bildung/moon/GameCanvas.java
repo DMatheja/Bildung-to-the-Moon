@@ -13,7 +13,7 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- * Der Haupt-JPanel, der als "Controller" fungiert.
+ * Der Haupt-JPanel, der als "Coordinator" fungiert.
  * Er initialisiert alle Subsysteme (Model, Renderer, Physics, Input)
  * und delegiert das Zeichnen an den GameRenderer.
  */

@@ -8,5 +8,6 @@ public enum GameState {
     READY_FOR_LAUNCH,
     COUNTDOWN,
     LAUNCHING,
-    EXPLODED
+    EXPLODED,
+    MOON
 }

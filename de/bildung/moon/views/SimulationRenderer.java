@@ -55,13 +55,19 @@ public class SimulationRenderer {
         drawGround(g2d);
         drawWorldParticles(g2d);
         drawDetachedStages(g2d);
+        if(model.currentState == GameState.MOON) drawMoon(g2d);
+        //drawMoon(g2d); //
         if (model.currentState != GameState.EXPLODED) {
             drawPlacedParts(g2d);
         }
 
+
+
         // Layer 3: UI (Screen Space)
         g2d.setTransform(originalTransform);
         drawLaunchUI(g2d);
+
+
     }
 
     private void drawWorldParticles(Graphics2D g2d) {
@@ -132,6 +138,16 @@ public class SimulationRenderer {
         g2d.drawString(String.format("Q: %.1f kPa", model.dynamicPressure / 1000), uiStartX + 15, 150);
         g2d.drawString(String.format("Max Q: %.1f kPa", model.maxDynamicPressure / 1000), uiStartX + 15, 180);
 
+        //2theMoon Meter
+        double moonDistRatio = (LUNAR_DISTANCE - model.altitude)/LUNAR_DISTANCE;
+        g2d.setColor(Color.GRAY);
+        g2d.drawRect(uiStartX + 313, 30, 30, 290);
+        g2d.setColor(Color.BLUE.brighter());
+        g2d.fillRect(uiStartX + 313+2, 30+2, 26, (int) (286 * moonDistRatio));
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
+        g2d.drawString("Distance to Moon", uiStartX + 170, 25);
+
         if (model.timeScale > 1.0) {
             g2d.setColor(Color.CYAN);
             g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
@@ -150,7 +166,7 @@ public class SimulationRenderer {
 
         int uiX = uiStartX + 15;
         int uiY = 220;
-        int stageNum = 1;
+        int stageNum = model.stages.stream().filter(p -> p.getTotalCurrentFuel() > 0).toList().size();
         g2d.setColor(Color.YELLOW);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
         g2d.drawString("STAGES", uiX, uiY - 5);
@@ -171,7 +187,7 @@ public class SimulationRenderer {
                 g2d.drawString("Stage " + stageNum + " Fuel", uiX, uiY - 5);
                 uiY += 50;
             }
-            stageNum++;
+            stageNum--;
         }
         if (model.currentState == GameState.READY_FOR_LAUNCH || model.currentState == GameState.COUNTDOWN) {
             if (model.currentState == GameState.READY_FOR_LAUNCH) {
@@ -201,10 +217,10 @@ public class SimulationRenderer {
                 g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
                 g2d.drawString("SELF-DESTRUCT", model.selfDestructButton.x + 15, model.selfDestructButton.y + 35);
             }
-        } else if (model.currentState == GameState.EXPLODED) {
+        } else if (model.currentState == GameState.EXPLODED || model.currentState == GameState.MOON) {
             g2d.setColor(Color.RED);
             g2d.setFont(new Font("SansSerif", Font.BOLD, 60));
-            g2d.drawString("ROCKET DESTROYED", bounds.width / 2 - 350, bounds.height / 2);
+            g2d.drawString(  (model.currentState == GameState.EXPLODED)?"ROCKET DESTROYED":"REACHED MOON!", bounds.width / 2 - 350, bounds.height / 2);
             g2d.setColor(Color.LIGHT_GRAY);
             g2d.fill(model.backToHangarButton);
             g2d.setColor(Color.BLACK);
@@ -239,5 +255,16 @@ private void drawPart(Graphics2D g2d, PartType type, int x, int y, float scale) 
 
             drawPart(g2d, part.type, (int) drawX, (int) drawY, 1.0f);
         }
+    }
+
+    private void drawMoon(Graphics2D g2d) {
+        Rectangle bounds = g2d.getClipBounds();
+        //draw base shape
+        g2d.setColor(Color.GRAY.darker());
+        g2d.fillOval(-bounds.width, (int) (model.cameraWorldY-bounds.height*1.5), bounds.width *4, bounds.height *2);
+        g2d.setColor(Color.DARK_GRAY);
+        g2d.fillOval((int) (bounds.width/1.1), (int) (model.cameraWorldY), bounds.height /2, bounds.height /2);
+        g2d.fillOval(bounds.width/2, (int) (model.cameraWorldY+bounds.height/8.0), bounds.height /4, bounds.height /4);
+        g2d.fillOval(bounds.width/6, (int) (model.cameraWorldY+bounds.height/4.0), bounds.height /8, bounds.height /8);
     }
 }

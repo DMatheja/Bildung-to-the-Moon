@@ -94,7 +94,7 @@ public class InputHandler extends MouseAdapter {
                     gameManager.explode();
                 }
             }
-            case EXPLODED -> {
+            case EXPLODED,MOON -> {
                 if (model.backToHangarButton.contains(clickPos)) {
                     gameManager.resetToBuilding();
                 }
