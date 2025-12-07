@@ -145,11 +145,12 @@ public class GameManager implements ActionListener { // Implementiert ActionList
      * Setzt das Spiel in den Bau-Modus zurück.
      */
     public void resetToBuilding() {
+        int earnedMoney = (int) (model.maxAltitude * MONEY_PER_METER);
         stopGameLoop();
         model.currentState = GameState.BUILDING;
         model.detachedStages.clear();
         // model.particlesInitialized = false; // Partikel müssen nicht neu geladen werden
-
+        model.playerMoney += earnedMoney;
         model.currentTotalMass = 0;
         for (RocketPart part : model.rocket) {
             part.currentFuel = part.type.fuelCapacity;

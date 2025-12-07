@@ -20,6 +20,7 @@ public class GameModel {
     public final RocketPart[][] grid = new RocketPart[GRID_WIDTH][GRID_HEIGHT];
     public final List<RocketPart> rocket = new ArrayList<>();
     public final List<Stage> stages = new ArrayList<>();
+    
     public int playerMoney = STARTING_MONEY;
     public PartType selectedPartType = null;
     public boolean autoDetachEnabled = false;
@@ -49,6 +50,9 @@ public class GameModel {
     public double currentTotalMass = 0;
     public double missionTime = 0;
 
+    // --- Progression & Highscores ---
+    public double highScoreAltitude = 0;
+    public int currentLevel = 1;
     // --- Visuelle Effekte ---
     public final List<Particle> particles = new ArrayList<>();
     public boolean particlesInitialized = false;

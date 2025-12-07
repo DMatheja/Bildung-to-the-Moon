@@ -4,7 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 public enum PartType {
-    COCKPIT("Cockpit", 200, Color.CYAN, 50, 0, 0, 0) {
+    // Level 1: Basics
+    COCKPIT("Cockpit", 200, Color.CYAN, 10, 0, 0, 0, 1) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             // Dreieck
@@ -15,20 +16,23 @@ public enum PartType {
             );
         }
     },
-    FUEL_TANK("Fuel Tank", 100, Color.LIGHT_GRAY, 10, 200, 0, 0) {
+    // Level 1: Kleiner Tank
+    FUEL_TANK("Fuel Tank", 100, Color.LIGHT_GRAY, 10, 200, 0, 0, 1) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             // Quadrat
             g2d.fillRect(x, y, size, size);
         }
     },
-    A4_ENGINE("A-4 Engine", 250, Color.decode("#C0C0C0"), 120, 0, 8000, 100) {
+    // Level 1: Schwache Engine (V2 Stil)
+    A4_ENGINE("A-4 Engine", 250, Color.decode("#C0C0C0"), 100, 0, 8000, 100, 1) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             drawEngine(g2d, x, y, size);
         }
     },
-    ENGINE_T1("T1 Engine", 500, Color.ORANGE, 50, 0, 50000, 300) {
+    // Level 2: Starke Engine (erst später verfügbar!)
+    ENGINE_T1("T1 Engine", 500, Color.ORANGE, 100, 0, 50000, 100, 2) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             drawEngine(g2d, x, y, size);
@@ -42,8 +46,9 @@ public enum PartType {
     public final double fuelCapacity;
     public final double thrust;
     public final int specificImpulse;
+    public final int requiredLevel; // NEU: Das benötigte Level
 
-    PartType(String n, int c, Color cl, double m, double fc, double t, int isp) {
+    PartType(String n, int c, Color cl, double m, double fc, double t, int isp, int reqLevel) {
         name = n;
         cost = c;
         color = cl;
@@ -51,6 +56,7 @@ public enum PartType {
         fuelCapacity = fc;
         thrust = t;
         specificImpulse = isp;
+        requiredLevel = reqLevel; // Standardmäßig Level 1
     }
 
     // Abstrakte Methode, die jedes Enum-Element implementieren muss
