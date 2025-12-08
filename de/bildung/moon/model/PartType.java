@@ -47,14 +47,14 @@ public enum PartType {
         }
     },
     // Level 1: Schwache Engine (V2 Stil)
-    A4_ENGINE("A-4 Engine", 250, Color.decode("#C0C0C0"), 80, 0, 8000, 150, 1, PartSuperType.ENGINE) {
+    A4_ENGINE("A-4 Engine", 250, Color.decode("#C0C0C0"), 80, 0, 8000, 100, 1, PartSuperType.ENGINE) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             drawEngine(g2d, x, y, size);
         }
     },
     // Level 2: Starke Engine
-    ENGINE_T1("T1 Engine", 500, Color.ORANGE, 100, 0, 55000, 100, 2, PartSuperType.ENGINE) {
+    ENGINE_T1("T1 Engine", 500, Color.ORANGE, 100, 0, 55000, 150, 2, PartSuperType.ENGINE) {
         @Override
         public void renderShape(Graphics2D g2d, int x, int y, int size) {
             drawEngine(g2d, x, y, size);
