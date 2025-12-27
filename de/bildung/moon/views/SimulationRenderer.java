@@ -241,7 +241,7 @@ private void drawPart(Graphics2D g2d, PartType type, int x, int y, float scale) 
     g2d.setColor(type.color);
 
     // Die Form-Daten und Zeichenlogik kommen nun direkt aus dem Enum
-    type.renderShape(g2d, drawX, drawY, size);
+    drawShapes(g2d,type.Shapes, drawX, drawY, size);
 }
 
     private void drawPlacedParts(Graphics2D g2d) {
@@ -255,6 +255,26 @@ private void drawPart(Graphics2D g2d, PartType type, int x, int y, float scale) 
 
             drawPart(g2d, part.type, (int) drawX, (int) drawY, 1.0f);
         }
+    }
+
+    public void drawShapes(Graphics2D g2d, java.util.List<Shape> shapes, double x, double y, double scale) {
+        // 1. Save the current state of the graphics context
+        AffineTransform oldTransform = g2d.getTransform();
+
+        // 2. Move the "pen" to the desired location
+        g2d.translate(x, y);
+
+        // 3. Scale the coordinate system
+        // (e.g., 2.0 makes everything twice as big)
+        g2d.scale(scale/10, scale/10);
+
+        // 4. Draw all shapes in the new coordinate space
+        for (Shape shape : shapes) {
+            g2d.fill(shape); // Use g2d.draw(shape) for outlines
+        }
+
+        // 5. IMPORTANT: Restore the transform so other things draw correctly
+        g2d.setTransform(oldTransform);
     }
 
     private void drawMoon(Graphics2D g2d) {

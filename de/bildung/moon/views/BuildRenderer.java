@@ -4,6 +4,7 @@ import de.bildung.moon.controller.BuildManager;
 import de.bildung.moon.model.*;
 import static de.bildung.moon.model.GameConstants.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 
 /**
  * Der "View" der Anwendung.
@@ -234,7 +235,7 @@ public class BuildRenderer {
 
         // Normale Farbe
         g2d.setColor(type.color);
-        type.renderShape(g2d, drawX, drawY, size);
+        drawShapes(g2d,type.Shapes, drawX, drawY, size);
     }
 
     // Eigene Methode für den Shop, die die Progression berücksichtigt
@@ -248,6 +249,26 @@ public class BuildRenderer {
         // HIER IST DIE ÄNDERUNG: Nutze getDisplayColor statt color
         g2d.setColor(type.getDisplayColor(model.currentLevel));
 
-        type.renderShape(g2d, drawX, drawY, size);
+        drawShapes(g2d,type.Shapes, drawX, drawY, size);
+    }
+
+    public void drawShapes(Graphics2D g2d, java.util.List<Shape> shapes, double x, double y, double scale) {
+        // 1. Save the current state of the graphics context
+        AffineTransform oldTransform = g2d.getTransform();
+
+        // 2. Move the "pen" to the desired location
+        g2d.translate(x, y);
+
+        // 3. Scale the coordinate system
+        // (e.g., 2.0 makes everything twice as big)
+        g2d.scale(scale/10, scale/10);
+
+        // 4. Draw all shapes in the new coordinate space
+        for (Shape shape : shapes) {
+            g2d.fill(shape); // Use g2d.draw(shape) for outlines
+        }
+
+        // 5. IMPORTANT: Restore the transform so other things draw correctly
+        g2d.setTransform(oldTransform);
     }
 }
