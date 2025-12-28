@@ -25,16 +25,9 @@ public class GameModel {
     public PartType selectedPartType = null;
     public boolean autoDetachEnabled = false;
     public boolean isOutOfFuel = false;
-    
-    // --- UI & Input Status ---
+
+
     public Point mousePos = new Point(0, 0);
-    public double shopScrollY = 0;
-    public final Rectangle launchButton = new Rectangle();
-    public final Rectangle startButton = new Rectangle();
-    public final Rectangle backToHangarButton = new Rectangle();
-    public final Rectangle detachButton = new Rectangle();
-    public final Rectangle autoDetachCheckbox = new Rectangle();
-    public final Rectangle selfDestructButton = new Rectangle();
 
     // --- Launch Animation & Physik-Zustand ---
     public long lastUpdateTime;

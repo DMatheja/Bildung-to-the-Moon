@@ -3,6 +3,7 @@ package de.bildung.moon;
 import de.bildung.moon.controller.BuildManager;
 import de.bildung.moon.controller.GameManager;
 import de.bildung.moon.controller.InputHandler;
+import de.bildung.moon.model.ButtonType;
 import de.bildung.moon.model.GameModel;
 import de.bildung.moon.model.GameState;
 import de.bildung.moon.views.BuildRenderer;
@@ -20,8 +21,8 @@ import javax.swing.*;
 public class GameCanvas extends JPanel {
 
     private final GameModel model;
-    private final BuildRenderer renderer;
-    private final SimulationRenderer simRenderer;
+    public final BuildRenderer buildRenderer;
+    public final SimulationRenderer simRenderer;
     // private final PhysicsEngine physicsEngine; // Wird jetzt vom GameManager verwaltet
     private final BuildManager buildManager;
     private final GameManager gameManager;
@@ -32,7 +33,7 @@ public class GameCanvas extends JPanel {
         model = new GameModel();
         
         // 2. Erstelle die Subsysteme und gib ihnen eine Referenz auf das Model
-        renderer = new BuildRenderer(model);
+        buildRenderer = new BuildRenderer(model);
         simRenderer = new SimulationRenderer(model);
         buildManager = new BuildManager(model);
 
@@ -85,7 +86,7 @@ public class GameCanvas extends JPanel {
 
         updateUIRectangles(g2d.getClipBounds());
         if (model.currentState == GameState.BUILDING) {
-            renderer.drawBuildMode(g2d);
+            buildRenderer.drawBuildMode(g2d);
         } else {
             simRenderer.drawLaunchMode(g2d);
         }
@@ -96,13 +97,36 @@ public class GameCanvas extends JPanel {
         int h = bounds.height;
         int uiStartX = SIDE_PANEL_WIDTH + GRID_WIDTH * CELL_SIZE;
 
-        model.launchButton.setBounds(uiStartX + 30, h - 80, 290, 60);
-        model.autoDetachCheckbox.setBounds(uiStartX + 30, h - 125, 290, 35);
+        buildRenderer.launchButton.setBounds(uiStartX + 30, h - 80, 290, 60);
+        buildRenderer.autoDetachCheckbox.setBounds(uiStartX + 30, h - 125, 290, 35);
 
-        model.startButton.setBounds(uiStartX + 30, h - 80, 290, 60);
-        model.backToHangarButton.setBounds(uiStartX + 30, h - 150, 290, 60);
-        model.detachButton.setBounds(15, h - 80, 220, 50);
-        model.selfDestructButton.setBounds(15, h - 140, 220, 50);
+        simRenderer.startButton.setBounds(uiStartX + 30, h - 80, 290, 60);
+        simRenderer.backToHangarButton.setBounds(uiStartX + 30, h - 150, 290, 60);
+        simRenderer.detachButton.setBounds(15, h - 80, 220, 50);
+        simRenderer.selfDestructButton.setBounds(15, h - 140, 220, 50);
+    }
+
+    public ButtonType getButton(Point clickPos) {
+        if(buildRenderer.launchButton.contains(clickPos) && model.currentState == GameState.BUILDING){
+            return ButtonType.launchButton;
+        }
+        if(buildRenderer.autoDetachCheckbox.contains(clickPos) && model.currentState == GameState.BUILDING){
+            return ButtonType.autoDetachCheckbox;
+        }
+
+        if(simRenderer.startButton.contains(clickPos) && model.currentState == GameState.READY_FOR_LAUNCH){
+            return ButtonType.startButton;
+        }
+        if(simRenderer.backToHangarButton.contains(clickPos) && model.currentState == GameState.EXPLODED || model.currentState == GameState.MOON || model.currentState == GameState.READY_FOR_LAUNCH || model.currentState == GameState.COUNTDOWN){
+            return ButtonType.backToHangarButton;
+        }
+        if(simRenderer.detachButton.contains(clickPos) && model.currentState == GameState.LAUNCHING){
+            return ButtonType.detachButton;
+        }
+        if(simRenderer.selfDestructButton.contains(clickPos) && model.currentState == GameState.LAUNCHING){
+            return ButtonType.selfDestructButton;
+        }
+        return null;
     }
 }
 

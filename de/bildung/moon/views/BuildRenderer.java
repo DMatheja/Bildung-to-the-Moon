@@ -13,6 +13,9 @@ import java.awt.*;
 public class BuildRenderer {
 
     private final GameModel model;
+    public final Rectangle launchButton = new Rectangle();
+    public final Rectangle autoDetachCheckbox = new Rectangle();
+    public double shopScrollY = 0;
 
     public BuildRenderer(GameModel model) {
         this.model = model;
@@ -68,7 +71,7 @@ public class BuildRenderer {
         int itemHeight = 160;
 
         for (PartType type : PartType.values()) {
-            int itemY = (int) (yOffset - model.shopScrollY);
+            int itemY = (int) (yOffset - shopScrollY);
 
             if (type == model.selectedPartType) {
                 g2d.setColor(Color.YELLOW);
@@ -165,20 +168,20 @@ public class BuildRenderer {
 
         // --- Buttons ---
         g2d.setColor(model.rocket.isEmpty() ? Color.GRAY : Color.GREEN);
-        g2d.fill(model.launchButton);
+        g2d.fill(launchButton);
         g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 30));
-        g2d.drawString("To Launchpad", model.launchButton.x + 35, model.launchButton.y + 45);
+        g2d.drawString("To Launchpad", launchButton.x + 35, launchButton.y + 45);
 
         g2d.setColor(Color.WHITE);
-        g2d.draw(model.autoDetachCheckbox);
+        g2d.draw(autoDetachCheckbox);
         g2d.setFont(new Font("SansSerif", Font.PLAIN, 22));
-        g2d.drawString("Auto-Detach", model.autoDetachCheckbox.x + 50, model.autoDetachCheckbox.y + 26);
+        g2d.drawString("Auto-Detach", autoDetachCheckbox.x + 50, autoDetachCheckbox.y + 26);
         if (model.autoDetachEnabled) {
             g2d.setColor(Color.GREEN);
             g2d.setStroke(new BasicStroke(4));
-            int checkX = model.autoDetachCheckbox.x + 15;
-            int checkY = model.autoDetachCheckbox.y + 18;
+            int checkX = autoDetachCheckbox.x + 15;
+            int checkY = autoDetachCheckbox.y + 18;
             g2d.drawLine(checkX, checkY, checkX + 8, checkY + 8);
             g2d.drawLine(checkX + 8, checkY + 8, checkX + 20, checkY - 8);
             g2d.setStroke(new BasicStroke(1));
@@ -249,5 +252,27 @@ public class BuildRenderer {
         g2d.setColor(type.getDisplayColor(model.currentLevel));
 
         type.renderShape(g2d, drawX, drawY, size);
+    }
+
+    public void updateScrolling(int scroll, int height) {
+        shopScrollY += scroll;
+        int totalItemHeight = PartType.values().length * 180;
+        int visibleHeight = height - 140 - 150;
+        int maxScroll = Math.max(0, totalItemHeight - visibleHeight);
+        if (shopScrollY < 0) shopScrollY = 0;
+        if (shopScrollY > maxScroll) shopScrollY = maxScroll;
+    }
+
+    public PartType findPartType(Point clickPos){
+        int shopItemHeight = 160;
+        int yOffset = 150;
+        for (PartType type : PartType.values()) {
+            Rectangle itemBounds = new Rectangle(10, (int) (yOffset - shopScrollY), SIDE_PANEL_WIDTH - 20, shopItemHeight + 20);
+            if (itemBounds.contains(clickPos)) {
+                return type;
+            }
+            yOffset += shopItemHeight + 40;
+        }
+        return null;
     }
 }

@@ -11,6 +11,10 @@ import java.awt.geom.AffineTransform;
 public class SimulationRenderer {
 
     private final GameModel model;
+    public final Rectangle startButton = new Rectangle();
+    public final Rectangle backToHangarButton = new Rectangle();
+    public final Rectangle detachButton = new Rectangle();
+    public final Rectangle selfDestructButton = new Rectangle();
 
     public SimulationRenderer(GameModel model) {
         this.model = model;
@@ -192,40 +196,40 @@ public class SimulationRenderer {
         if (model.currentState == GameState.READY_FOR_LAUNCH || model.currentState == GameState.COUNTDOWN) {
             if (model.currentState == GameState.READY_FOR_LAUNCH) {
                 g2d.setColor(Color.RED);
-                g2d.fill(model.startButton);
+                g2d.fill(startButton);
                 g2d.setColor(Color.WHITE);
                 g2d.setFont(new Font("SansSerif", Font.BOLD, 32));
-                g2d.drawString("START", model.startButton.x + 90, model.startButton.y + 45);
+                g2d.drawString("START", startButton.x + 90, startButton.y + 45);
             }
             g2d.setColor(Color.LIGHT_GRAY);
-            g2d.fill(model.backToHangarButton);
+            g2d.fill(backToHangarButton);
             g2d.setColor(Color.BLACK);
             g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-            g2d.drawString("Back to Hangar", model.backToHangarButton.x + 50, model.backToHangarButton.y + 40);
+            g2d.drawString("Back to Hangar", backToHangarButton.x + 50, backToHangarButton.y + 40);
         } else if (model.currentState == GameState.LAUNCHING) {
             if (GameManager.getActiveStageCount(model) > 1) {
                 g2d.setColor(Color.ORANGE);
-                g2d.fill(model.detachButton);
+                g2d.fill(detachButton);
                 g2d.setColor(Color.BLACK);
                 g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-                g2d.drawString("Detach Stage", model.detachButton.x + 35, model.detachButton.y + 35);
+                g2d.drawString("Detach Stage", detachButton.x + 35, detachButton.y + 35);
             }
             if (model.rocketVelY > 0 || model.isOutOfFuel) {
                 g2d.setColor(Color.RED);
-                g2d.fill(model.selfDestructButton);
+                g2d.fill(selfDestructButton);
                 g2d.setColor(Color.WHITE);
                 g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-                g2d.drawString("SELF-DESTRUCT", model.selfDestructButton.x + 15, model.selfDestructButton.y + 35);
+                g2d.drawString("SELF-DESTRUCT", selfDestructButton.x + 15, selfDestructButton.y + 35);
             }
         } else if (model.currentState == GameState.EXPLODED || model.currentState == GameState.MOON) {
             g2d.setColor(Color.RED);
             g2d.setFont(new Font("SansSerif", Font.BOLD, 60));
             g2d.drawString(  (model.currentState == GameState.EXPLODED)?"ROCKET DESTROYED":"REACHED MOON!", bounds.width / 2 - 350, bounds.height / 2);
             g2d.setColor(Color.LIGHT_GRAY);
-            g2d.fill(model.backToHangarButton);
+            g2d.fill(backToHangarButton);
             g2d.setColor(Color.BLACK);
             g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-            g2d.drawString("Back to Hangar", model.backToHangarButton.x + 50, model.backToHangarButton.y + 40);
+            g2d.drawString("Back to Hangar", backToHangarButton.x + 50, backToHangarButton.y + 40);
         }
     }
 
