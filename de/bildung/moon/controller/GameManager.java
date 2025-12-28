@@ -79,7 +79,8 @@ public class GameManager implements ActionListener { // Implementiert ActionList
         //if (model.timeSinceOutOfFuel > 1.0) {
             if (model.altitude < 1000) model.timeScale = 1.0;
             else if (Math.abs(model.rocketVelY) < 100 && model.altitude > 80000) model.timeScale = 100.0;
-            else if (model.altitude > 10000000) model.timeScale = 200.0;
+            else if (model.altitude > 10000000) model.timeScale = 2000.0;
+            else if (model.altitude > 5000000) model.timeScale = 200.0;
             else if (model.altitude > 1000000) model.timeScale = 100.0;
             else if (model.altitude > 100000) model.timeScale = 50.0;
             else if (model.altitude > 50000) model.timeScale = 25.0;
@@ -157,11 +158,25 @@ public class GameManager implements ActionListener { // Implementiert ActionList
         if (model.maxAltitude > model.highScoreAltitude) {
             model.highScoreAltitude = model.maxAltitude;
 
-            // Level-Check: Level 2 ab 35km, Level 3 ab 1000km
-            if (model.highScoreAltitude >= 100000) {
+            // Level 5: Deep Space (Ionen-Antrieb) - 0.1 Gm
+            if (model.highScoreAltitude >= 100000000) {
+                model.currentLevel = 5;
+            }
+            // Level 4: Mond-Orbit / Schwerlast (Saturn V / Behemoth) - 1 Mm
+            else if (model.highScoreAltitude >= 18000000) { //tipp: T1 Triebwerk 5 mal als Basis mit günstigen Treibstoff
+                model.currentLevel = 4;
+            }
+            // Level 3: Suborbital / Vakuum (Mercury / Voyager) - 1000 km
+            else if (model.highScoreAltitude >= 1000000) {
                 model.currentLevel = 3;
-            } else if (model.highScoreAltitude >= 35000) {
+            }
+            // Level 2: Erste Schritte (Apollo / T1 / Proton Tank) - 35 km
+            else if (model.highScoreAltitude >= 79000) { //tip: 3 Fuel Tanks
                 model.currentLevel = 2;
+            }
+            // Level 1: Start
+            else {
+                model.currentLevel = 1;
             }
         }
         stopGameLoop();
