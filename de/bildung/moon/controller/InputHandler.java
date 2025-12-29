@@ -1,12 +1,14 @@
 package de.bildung.moon.controller;
 
 import de.bildung.moon.GameCanvas;
+import de.bildung.moon.model.ButtonType;
 import de.bildung.moon.model.GameModel;
 import de.bildung.moon.model.GameState;
 import de.bildung.moon.model.PartType;
 
 import static de.bildung.moon.model.GameConstants.*;
-import java.awt.Point;
+
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -23,6 +25,10 @@ public class InputHandler extends MouseAdapter {
     private final BuildManager buildManager;
     private final GameManager gameManager;
     private final GameCanvas canvas; // Wird für repaint() benötigt
+
+    // --- UI & Input Status ---
+
+
 
     public InputHandler(GameModel model, BuildManager buildManager, GameManager gameManager, GameCanvas canvas) {
         this.model = model;
@@ -50,13 +56,7 @@ public class InputHandler extends MouseAdapter {
     public void mouseWheelMoved(MouseWheelEvent e) {
         if (model.currentState == GameState.BUILDING && canvas.getWidth() > 0) {
             if (model.mousePos.x < SIDE_PANEL_WIDTH) {
-                model.shopScrollY += e.getWheelRotation() * 25;
-                // TODO: Diese Logik sollte in eine UI-Management-Klasse
-                int totalItemHeight = PartType.values().length * 180;
-                int visibleHeight = canvas.getHeight() - 140 - 150;
-                int maxScroll = Math.max(0, totalItemHeight - visibleHeight);
-                if (model.shopScrollY < 0) model.shopScrollY = 0;
-                if (model.shopScrollY > maxScroll) model.shopScrollY = maxScroll;
+                canvas.buildRenderer.updateScrolling(e.getWheelRotation() * 25, canvas.getHeight());
                 canvas.repaint();
             }
         }
@@ -65,7 +65,7 @@ public class InputHandler extends MouseAdapter {
     private void handleMouseClick(Point clickPos) {
         int gridStartX = SIDE_PANEL_WIDTH;
         int gridEndX = gridStartX + GRID_WIDTH * CELL_SIZE;
-
+        ButtonType bType = canvas.getButton(clickPos);
         if (null != model.currentState) switch (model.currentState) {
             case BUILDING -> {
                 if (clickPos.x >= gridStartX && clickPos.x < gridEndX) {
@@ -73,29 +73,29 @@ public class InputHandler extends MouseAdapter {
                     int gridY = clickPos.y / CELL_SIZE;
                     buildManager.tryPlacePart(gridX, gridY);
                 } else if (clickPos.x < gridStartX) {
-                    buildManager.selectPartFromShop(clickPos);
-                }   if (model.launchButton.contains(clickPos) && !model.rocket.isEmpty()) {
+                    buildManager.selectPart(canvas.buildRenderer.findPartType(clickPos));
+                }   if (bType == ButtonType.launchButton && !model.rocket.isEmpty()) {
                     gameManager.prepareForLaunch();
-                }   if (model.autoDetachCheckbox.contains(clickPos)) {
+                }   if (bType == ButtonType.autoDetachCheckbox) {
                     model.autoDetachEnabled = !model.autoDetachEnabled;
                 }
             }
             case READY_FOR_LAUNCH, COUNTDOWN -> {
-                if (model.startButton.contains(clickPos) && model.currentState == GameState.READY_FOR_LAUNCH) {
+                if (bType == ButtonType.startButton && model.currentState == GameState.READY_FOR_LAUNCH) {
                     model.currentState = GameState.COUNTDOWN;
-                }   if (model.backToHangarButton.contains(clickPos)) {
+                }   if (bType == ButtonType.backToHangarButton) {
                     gameManager.resetToBuilding();
                 }
             }
             case LAUNCHING -> {
-                if (model.detachButton.contains(clickPos) && GameManager.getActiveStageCount(model) > 1) {
+                if (bType == ButtonType.detachButton && GameManager.getActiveStageCount(model) > 1) {
                     gameManager.detachStage();
-                }   if (model.selfDestructButton.contains(clickPos) && (model.rocketVelY > 0 || model.isOutOfFuel)) {
+                }   if (bType == ButtonType.selfDestructButton && (model.rocketVelY > 0 || model.isOutOfFuel)) {
                     gameManager.explode();
                 }
             }
             case EXPLODED,MOON -> {
-                if (model.backToHangarButton.contains(clickPos)) {
+                if (bType == ButtonType.backToHangarButton) {
                     gameManager.resetToBuilding();
                 }
             }

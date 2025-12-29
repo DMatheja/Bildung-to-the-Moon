@@ -102,25 +102,11 @@ public class BuildManager {
      * Wählt ein Teil aus dem Shop basierend auf der Klickposition aus.
      * Blockiert die Auswahl, wenn das Level zu niedrig ist.
      */
-    public void selectPartFromShop(Point clickPos) {
-        int shopItemHeight = 160;
-        int yOffset = 150;
-        for (PartType type : PartType.values()) {
-            Rectangle itemBounds = new Rectangle(10, (int) (yOffset - model.shopScrollY), SIDE_PANEL_WIDTH - 20, shopItemHeight + 20);
-            if (itemBounds.contains(clickPos)) {
-
-                // --- PROGRESSION CHECK ---
-                // Prüfen, ob das Level des Spielers ausreicht
-                if (model.currentLevel >= type.requiredLevel) {
-                    model.selectedPartType = type;
-                } else {
-                    // Level zu niedrig: Teil wird nicht ausgewählt.
-                    // Optional: Hier könnte man ein Sound-Feedback abspielen.
-                    System.out.println("Teil gesperrt! Benötigt Level " + type.requiredLevel);
-                }
-                break;
-            }
-            yOffset += shopItemHeight + 40;
+    public void selectPart(PartType type) {
+        // --- PROGRESSION CHECK ---
+        // Prüfen, ob das Level des Spielers ausreicht
+        if (model.currentLevel >= type.requiredLevel) {
+            model.selectedPartType = type;
         }
     }
 
