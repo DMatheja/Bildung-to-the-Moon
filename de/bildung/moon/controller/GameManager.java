@@ -66,40 +66,30 @@ public class GameManager implements ActionListener { // Implementiert ActionList
     }
 
     private void handleTimeWarp(double actualDeltaTime) {
-        // Time Warp ist nur aktiv, wenn die Rakete fliegt
-        if (model.currentState != GameState.LAUNCHING) {
+        if (model.currentState != GameState.LAUNCHING /*|| !model.isOutOfFuel*/) {
             model.timeScale = 1.0;
             return;
         }
 
-        // Timer für eventuelle Verzögerungen weiterlaufen lassen
+        // Timer für Time-Warp-Verzögerung
         if (model.timeSinceOutOfFuel >= 0 && model.timeSinceOutOfFuel <= 1.0) {
             model.timeSinceOutOfFuel += actualDeltaTime;
         }
 
-        // Sicherheitschecks: Kein TimeWarp unter 10km Höhe oder in Mondnähe (10km Abstand)
-        // Mondposition ist fest bei 384.399.000m definiert
-        double distanceToMoon = Math.abs(384399000 - model.altitude);
-
-        if (model.altitude < 10000 || distanceToMoon < 10000) {
-            model.timeScale = 1.0;
-            return; // Sicherheitsabbruch, damit man nicht in den Boden crasht
-        }
-
-        // Neue Logik: Time Warp basierend auf G-Kraft
-        // Im freien Fall (Orbit) ist die G-Kraft nahe 0 -> schneller Time Warp
-        // Beim Start oder Bremsen ist die G-Kraft hoch -> normale Zeit
-        double g = Math.abs(model.gForce);
-
-        if (g < 0.1) {
-            model.timeScale = 2000.0; // Quasi Schwerelosigkeit -> Maximaler Warp
-        } else if (g < 0.5) {
-            model.timeScale = 200.0;  // Geringe Kräfte -> Hoher Warp
-        } else if (g < 1.0) {
-            model.timeScale = 10.0;   // Leichte Kräfte -> Kleiner Warp
-        } else {
-            model.timeScale = 1.0;    // 1G oder mehr (Schub/Atmosphäre) -> Normalzeit
-        }
+        //if (model.timeSinceOutOfFuel > 1.0) {
+        if (model.altitude < 1000) model.timeScale = 1.0;
+        else if (Math.abs(model.rocketVelY) < 100 && model.altitude > 80000) model.timeScale = 100.0;
+        else if (model.altitude > 10000000) model.timeScale = 2000.0;
+        else if (model.altitude > 5000000) model.timeScale = 200.0;
+        else if (model.altitude > 1000000) model.timeScale = 100.0;
+        else if (model.altitude > 100000) model.timeScale = 50.0;
+        else if (model.altitude > 50000) model.timeScale = 25.0;
+        else if (model.altitude > 20000) model.timeScale = 10.0;
+        else if (model.altitude > 5000) model.timeScale = 5.0;
+        else model.timeScale = 2.0;
+//        } else {
+//            model.timeScale = 1.0;
+//        }
     }
 
     private void checkGameStatus() {
