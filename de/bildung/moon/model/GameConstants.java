@@ -11,7 +11,7 @@ public final class GameConstants {
     // --- Game & Physics Constants ---
     public static final int GRID_WIDTH = 7;
     public static final int GRID_HEIGHT = 13;
-    public static final int CELL_SIZE = 100;
+    public static final int CELL_SIZE = 70;
     public static final int SIDE_PANEL_WIDTH = 500;
     public static final int STARTING_MONEY = 1000;
     public static final double PIXELS_PER_METER = 1.0;
