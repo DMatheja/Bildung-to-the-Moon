@@ -1,10 +1,10 @@
 package de.bildung.moon.model;
 
+import static de.bildung.moon.model.GameConstants.*;
 import de.bildung.moon.particle.Particle;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import static de.bildung.moon.model.GameConstants.*;
 
 /**
  * Das "Model" der Anwendung.
@@ -35,6 +35,8 @@ public class GameModel {
     public final Rectangle detachButton = new Rectangle();
     public final Rectangle autoDetachCheckbox = new Rectangle();
     public final Rectangle selfDestructButton = new Rectangle();
+    // Knopf für Info-Dialog
+    public final Rectangle infoButton = new Rectangle();
 
     // --- Launch Animation & Physik-Zustand ---
     public long lastUpdateTime;

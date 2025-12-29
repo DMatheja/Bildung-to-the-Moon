@@ -124,7 +124,7 @@ public class SimulationRenderer {
         g2d.setFont(new Font("SansSerif", Font.BOLD, 20));
         g2d.drawString(String.format("Velocity: %.1f m/s", -model.rocketVelY), 15, 60);
         g2d.drawString(String.format("G-Force: %.1f G", model.gForce), 15, 90);
-        g2d.drawString(String.format("Mass: %.0f kg", model.currentTotalMass), 15, 120);
+        g2d.drawString(String.format("Mass: %.0f T", model.currentTotalMass), 15, 120);
 
         // --- Right Panel ---
         g2d.setColor(Color.YELLOW);
@@ -227,7 +227,12 @@ public class SimulationRenderer {
             g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
             g2d.drawString("Back to Hangar", model.backToHangarButton.x + 50, model.backToHangarButton.y + 40);
         }
-    }
+        // Info button
+        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.fill(model.infoButton);
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
+        g2d.drawString("Info", model.infoButton.x + 110, model.infoButton.y + 32);    }
 
 private void drawPart(Graphics2D g2d, PartType type, int x, int y, float scale) {
     int size = (int) (CELL_SIZE * scale);

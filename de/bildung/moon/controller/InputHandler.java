@@ -1,11 +1,11 @@
 package de.bildung.moon.controller;
 
 import de.bildung.moon.GameCanvas;
+import static de.bildung.moon.model.GameConstants.*;
 import de.bildung.moon.model.GameModel;
 import de.bildung.moon.model.GameState;
 import de.bildung.moon.model.PartType;
-
-import static de.bildung.moon.model.GameConstants.*;
+import de.bildung.moon.views.InfoDialog;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -65,6 +65,16 @@ public class InputHandler extends MouseAdapter {
     private void handleMouseClick(Point clickPos) {
         int gridStartX = SIDE_PANEL_WIDTH;
         int gridEndX = gridStartX + GRID_WIDTH * CELL_SIZE;
+
+        // Info button ist in allen Zuständen aktiv
+        if (model.infoButton.contains(clickPos)) {
+            SwingUtilities.invokeLater(() -> {
+                java.awt.Window w = SwingUtilities.getWindowAncestor(canvas);
+                new InfoDialog(w).setVisible(true);
+            });
+            canvas.repaint();
+            return;
+        }
 
         if (null != model.currentState) switch (model.currentState) {
             case BUILDING -> {

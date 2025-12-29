@@ -3,12 +3,11 @@ package de.bildung.moon;
 import de.bildung.moon.controller.BuildManager;
 import de.bildung.moon.controller.GameManager;
 import de.bildung.moon.controller.InputHandler;
+import static de.bildung.moon.model.GameConstants.*;
 import de.bildung.moon.model.GameModel;
 import de.bildung.moon.model.GameState;
 import de.bildung.moon.views.BuildRenderer;
 import de.bildung.moon.views.SimulationRenderer;
-
-import static de.bildung.moon.model.GameConstants.*;
 import java.awt.*;
 import javax.swing.*;
 
@@ -98,6 +97,7 @@ public class GameCanvas extends JPanel {
 
         model.launchButton.setBounds(uiStartX + 30, h - 80, 290, 60);
         model.autoDetachCheckbox.setBounds(uiStartX + 30, h - 125, 290, 35);
+        model.infoButton.setBounds(uiStartX + 30, h - 200, 290, 50);
 
         model.startButton.setBounds(uiStartX + 30, h - 80, 290, 60);
         model.backToHangarButton.setBounds(uiStartX + 30, h - 150, 290, 60);
