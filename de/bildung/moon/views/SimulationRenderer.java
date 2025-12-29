@@ -231,12 +231,7 @@ public class SimulationRenderer {
             g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
             g2d.drawString("Back to Hangar", backToHangarButton.x + 50, backToHangarButton.y + 40);
         }
-        // Info button
-        g2d.setColor(Color.LIGHT_GRAY);
-        g2d.fill(model.infoButton);
-        g2d.setColor(Color.BLACK);
-        g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-        g2d.drawString("Info", model.infoButton.x + 110, model.infoButton.y + 32);    }
+    }
 
 private void drawPart(Graphics2D g2d, PartType type, int x, int y, float scale) {
     int size = (int) (CELL_SIZE * scale);

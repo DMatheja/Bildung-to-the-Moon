@@ -98,15 +98,13 @@ public class GameCanvas extends JPanel {
 
         buildRenderer.launchButton.setBounds(uiStartX + 30, h - 80, 290, 60);
         buildRenderer.autoDetachCheckbox.setBounds(uiStartX + 30, h - 125, 290, 35);
+        buildRenderer.infoButton.setBounds(uiStartX + 30, h - 200, 290, 50);
 
         simRenderer.startButton.setBounds(uiStartX + 30, h - 80, 290, 60);
         simRenderer.backToHangarButton.setBounds(uiStartX + 30, h - 150, 290, 60);
         simRenderer.detachButton.setBounds(15, h - 80, 220, 50);
         simRenderer.selfDestructButton.setBounds(15, h - 140, 220, 50);
     }
-        model.launchButton.setBounds(uiStartX + 30, h - 80, 290, 60);
-        model.autoDetachCheckbox.setBounds(uiStartX + 30, h - 125, 290, 35);
-        model.infoButton.setBounds(uiStartX + 30, h - 200, 290, 50);
 
     public ButtonType getButton(Point clickPos) {
         if(buildRenderer.launchButton.contains(clickPos) && model.currentState == GameState.BUILDING){
@@ -115,11 +113,14 @@ public class GameCanvas extends JPanel {
         if(buildRenderer.autoDetachCheckbox.contains(clickPos) && model.currentState == GameState.BUILDING){
             return ButtonType.autoDetachCheckbox;
         }
+        if(buildRenderer.infoButton.contains(clickPos) && model.currentState == GameState.BUILDING){
+            return ButtonType.infoButton;
+        }
 
         if(simRenderer.startButton.contains(clickPos) && model.currentState == GameState.READY_FOR_LAUNCH){
             return ButtonType.startButton;
         }
-        if(simRenderer.backToHangarButton.contains(clickPos) && model.currentState == GameState.EXPLODED || model.currentState == GameState.MOON || model.currentState == GameState.READY_FOR_LAUNCH || model.currentState == GameState.COUNTDOWN){
+        if(simRenderer.backToHangarButton.contains(clickPos) && (model.currentState == GameState.EXPLODED || model.currentState == GameState.MOON || model.currentState == GameState.READY_FOR_LAUNCH || model.currentState == GameState.COUNTDOWN)){
             return ButtonType.backToHangarButton;
         }
         if(simRenderer.detachButton.contains(clickPos) && model.currentState == GameState.LAUNCHING){

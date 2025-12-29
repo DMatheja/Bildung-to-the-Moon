@@ -67,14 +67,7 @@ public class InputHandler extends MouseAdapter {
         ButtonType bType = canvas.getButton(clickPos);
 
         // Info button ist in allen Zuständen aktiv
-        if (model.infoButton.contains(clickPos)) {
-            SwingUtilities.invokeLater(() -> {
-                java.awt.Window w = SwingUtilities.getWindowAncestor(canvas);
-                new InfoDialog(w).setVisible(true);
-            });
-            canvas.repaint();
-            return;
-        }
+
 
         if (null != model.currentState) switch (model.currentState) {
             case BUILDING -> {
@@ -88,6 +81,13 @@ public class InputHandler extends MouseAdapter {
                     gameManager.prepareForLaunch();
                 }   if (bType == ButtonType.autoDetachCheckbox) {
                     model.autoDetachEnabled = !model.autoDetachEnabled;
+                }   if (bType == ButtonType.infoButton) {
+                    SwingUtilities.invokeLater(() -> {
+                        java.awt.Window w = SwingUtilities.getWindowAncestor(canvas);
+                        new InfoDialog(w).setVisible(true);
+                    });
+                    canvas.repaint();
+                    return;
                 }
             }
             case READY_FOR_LAUNCH, COUNTDOWN -> {

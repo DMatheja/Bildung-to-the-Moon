@@ -16,6 +16,7 @@ public class BuildRenderer {
     private final GameModel model;
     public final Rectangle launchButton = new Rectangle();
     public final Rectangle autoDetachCheckbox = new Rectangle();
+    public final Rectangle infoButton = new Rectangle();
     public double shopScrollY = 0;
 
     public BuildRenderer(GameModel model) {
@@ -176,10 +177,10 @@ public class BuildRenderer {
 
         // Info button
         g2d.setColor(Color.LIGHT_GRAY);
-        g2d.fill(model.infoButton);
+        g2d.fill(infoButton);
         g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-        g2d.drawString("Info", model.infoButton.x + 110, model.infoButton.y + 32);
+        g2d.drawString("Info", infoButton.x + 110, infoButton.y + 32);
 
         g2d.setColor(Color.WHITE);
         g2d.draw(autoDetachCheckbox);

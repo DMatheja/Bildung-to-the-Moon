@@ -6,5 +6,5 @@ public enum ButtonType {
     startButton,
     backToHangarButton,
     detachButton,
-    selfDestructButton
+    infoButton, selfDestructButton
 }
