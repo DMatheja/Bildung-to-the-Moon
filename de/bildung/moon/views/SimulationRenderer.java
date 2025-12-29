@@ -270,7 +270,7 @@ private void drawPart(Graphics2D g2d, PartType type, int x, int y, float scale) 
 
         // 3. Scale the coordinate system
         // (e.g., 2.0 makes everything twice as big)
-        g2d.scale(scale/10, scale/10);
+        g2d.scale(scale, scale);
 
         // 4. Draw all shapes in the new coordinate space
         for (Shape shape : shapes) {
