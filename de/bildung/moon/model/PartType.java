@@ -20,7 +20,7 @@ public enum PartType {
     // ==========================================
     BASIC_FUEL_TANK("Treibstofftank (Klein)", 100, Color.LIGHT_GRAY, 20, 200, 0, 0, 1, PartSuperType.FUEL_TANK, createTankShapes()),
     PROTON_FUEL_TANK("Proton UR-500 Tank", 500, Color.LIGHT_GRAY.brighter(), 25, 400, 0, 0, 3, PartSuperType.FUEL_TANK, createTankShapes()),
-    SATURN_FUEL_TANK("Saturn V Stufe-1 Tank", 1000, Color.LIGHT_GRAY.darker(), 50, 700, 0, 0, 4, PartSuperType.FUEL_TANK, createTankShapes()),
+    SATURN_FUEL_TANK("Behemoth Erdantrieb", 1000, Color.LIGHT_GRAY.darker(), 50, 700, 0, 0, 4, PartSuperType.FUEL_TANK, createTankShapes()),
 
     // ==========================================
     // TRIEBWERKE
@@ -28,7 +28,7 @@ public enum PartType {
     A4_ENGINE("A-4 Triebwerk", 150, Color.decode("#C0C0C0"), 20, 0, 8000, 100, 1, PartSuperType.ENGINE, createEngineShapes(0.2)),
     ENGINE_T1("T1 Mehrzweck-Triebwerk", 750, Color.ORANGE, 50, 0, 30000, 200, 2, PartSuperType.ENGINE, createEngineShapes(0.2)),
 
-    VACUUM_ENGINE("J-2 Voyager Vakuum-Triebwerk", 1500, Color.decode("#4682B4"), 50, 0, 15000, 350, 3, PartSuperType.ENGINE,
+    VACUUM_ENGINE("Vakuum-Triebwerk", 1500, Color.decode("#4682B4"), 50, 0, 15000, 350, 3, PartSuperType.ENGINE,
             List.of(
                     new Rectangle2D.Double(0, 0, 1.0, 0.33),
                     createNozzlePath(0.33, 0.05)

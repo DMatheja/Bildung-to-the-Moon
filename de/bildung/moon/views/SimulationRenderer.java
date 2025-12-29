@@ -123,24 +123,24 @@ public class SimulationRenderer {
         // --- Left Panel ---
         g2d.setColor(Color.YELLOW);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-        g2d.drawString("FLIGHT DATA", 15, 30);
+        g2d.drawString("FLUGINFORMATIONEN", 15, 30);
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 20));
-        g2d.drawString(String.format("Velocity: %.1f m/s", -model.rocketVelY), 15, 60);
-        g2d.drawString(String.format("G-Force: %.1f G", model.gForce), 15, 90);
-        g2d.drawString(String.format("Mass: %.0f T", model.currentTotalMass), 15, 120);
+        g2d.drawString(String.format("Geschwindigkeit: %.1f m/s", -model.rocketVelY), 15, 60);
+        g2d.drawString(String.format("G-Kräfte: %.1f G", model.gForce), 15, 90);
+        g2d.drawString(String.format("Masse: %.0f T", model.currentTotalMass), 15, 120);
 
         // --- Right Panel ---
         g2d.setColor(Color.YELLOW);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-        g2d.drawString("TELEMETRY", uiStartX + 15, 30);
+        g2d.drawString("TELEMETRIE", uiStartX + 15, 30);
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 20));
-        g2d.drawString(String.format("Altitude: %.0f m", model.altitude), uiStartX + 15, 60);
-        g2d.drawString(String.format("Max Alt: %.0f m", model.maxAltitude), uiStartX + 15, 90);
-        g2d.drawString(String.format("Atm. Press: %.1f %%", (PhysicsEngine.getAirDensityAt(model.altitude) / SEA_LEVEL_AIR_DENSITY) * 100), uiStartX + 15, 120);
-        g2d.drawString(String.format("Q: %.1f kPa", model.dynamicPressure / 1000), uiStartX + 15, 150);
-        g2d.drawString(String.format("Max Q: %.1f kPa", model.maxDynamicPressure / 1000), uiStartX + 15, 180);
+        g2d.drawString(String.format("Höhe: %.0f m", model.altitude), uiStartX + 15, 60);
+        g2d.drawString(String.format("Max. Höhe: %.0f m", model.maxAltitude), uiStartX + 15, 90);
+        g2d.drawString(String.format("Atm. Dichte: %.1f %%", (PhysicsEngine.getAirDensityAt(model.altitude) / SEA_LEVEL_AIR_DENSITY) * 100), uiStartX + 15, 120);
+        g2d.drawString(String.format("Druck Q: %.1f kPa", model.dynamicPressure / 1000), uiStartX + 15, 150);
+        g2d.drawString(String.format("Max. Druck Q: %.1f kPa", model.maxDynamicPressure / 1000), uiStartX + 15, 180);
 
         //2theMoon Meter
         double moonDistRatio = (LUNAR_DISTANCE - model.altitude)/LUNAR_DISTANCE;
@@ -150,12 +150,12 @@ public class SimulationRenderer {
         g2d.fillRect(uiStartX + 350+2, 30+2, 26, (int) (286 * moonDistRatio));
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
-        g2d.drawString("Distance to Moon", uiStartX + 200, 25);
+        g2d.drawString("Entfernung zum Mond!", uiStartX + 200, 25);
 
         if (model.timeScale > 1.0) {
             g2d.setColor(Color.CYAN);
             g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-            g2d.drawString(String.format("Time Warp: %.0fx", model.timeScale), bounds.width / 2 - 80, 100);
+            g2d.drawString(String.format("Zeitraffer: %.0fx", model.timeScale), bounds.width / 2 - 80, 100);
         }
 
         String timeString;
@@ -173,7 +173,7 @@ public class SimulationRenderer {
         int stageNum = model.stages.stream().filter(p -> p.getTotalCurrentFuel() > 0).toList().size();
         g2d.setColor(Color.YELLOW);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-        g2d.drawString("STAGES", uiX, uiY - 5);
+        g2d.drawString("STUFEN", uiX, uiY - 5);
         uiY += 30;
 
         for (int i = model.stages.size() - 1; i >= 0; i--) {
@@ -188,7 +188,7 @@ public class SimulationRenderer {
                 g2d.fillRect(uiX + 2, uiY + 2, (int) (286 * fuelRatio), 26);
                 g2d.setColor(Color.WHITE);
                 g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
-                g2d.drawString("Stage " + stageNum + " Fuel", uiX, uiY - 5);
+                g2d.drawString("STUFE " + stageNum + " Treibstoff:", uiX, uiY - 5);
                 uiY += 50;
             }
             stageNum--;
@@ -205,26 +205,26 @@ public class SimulationRenderer {
             g2d.fill(backToHangarButton);
             g2d.setColor(Color.BLACK);
             g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-            g2d.drawString("Back to Hangar", backToHangarButton.x + 50, backToHangarButton.y + 40);
+            g2d.drawString("Zurück zum Hangar", backToHangarButton.x + 50, backToHangarButton.y + 40);
         } else if (model.currentState == GameState.LAUNCHING) {
             if (GameManager.getActiveStageCount(model) > 1) {
                 g2d.setColor(Color.ORANGE);
                 g2d.fill(detachButton);
                 g2d.setColor(Color.BLACK);
                 g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-                g2d.drawString("Detach Stage", detachButton.x + 35, detachButton.y + 35);
+                g2d.drawString("STUFE TRENNEN", detachButton.x + 35, detachButton.y + 35);
             }
             if (model.rocketVelY > 0 || model.isOutOfFuel) {
                 g2d.setColor(Color.RED);
                 g2d.fill(selfDestructButton);
                 g2d.setColor(Color.WHITE);
                 g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-                g2d.drawString("SELF-DESTRUCT", selfDestructButton.x + 15, selfDestructButton.y + 35);
+                g2d.drawString("SELBSTZERSTÖRUNG!", selfDestructButton.x + 15, selfDestructButton.y + 35);
             }
         } else if (model.currentState == GameState.EXPLODED || model.currentState == GameState.MOON) {
-            g2d.setColor(Color.RED);
+            g2d.setColor((model.currentState == GameState.EXPLODED)?(Color.RED):(Color.GREEN));
             g2d.setFont(new Font("SansSerif", Font.BOLD, 60));
-            g2d.drawString(  (model.currentState == GameState.EXPLODED)?"ROCKET DESTROYED":"REACHED MOON!", bounds.width / 2 - 350, bounds.height / 2);
+            g2d.drawString(  (model.currentState == GameState.EXPLODED)?"RAKETE ZERSTÖRT!":"DU HAST DEN MOND ERREICHT!", bounds.width / 2 - 350, bounds.height / 2);
             g2d.setColor(Color.LIGHT_GRAY);
             g2d.fill(backToHangarButton);
             g2d.setColor(Color.BLACK);

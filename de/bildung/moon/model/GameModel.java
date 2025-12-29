@@ -24,7 +24,7 @@ public class GameModel {
     
     public int playerMoney = STARTING_MONEY;
     public PartType selectedPartType = null;
-    public boolean autoDetachEnabled = false;
+    public boolean autoDetachEnabled = true;
     public boolean isOutOfFuel = false;
 
 

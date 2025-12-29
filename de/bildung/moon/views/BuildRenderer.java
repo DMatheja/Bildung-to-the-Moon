@@ -103,16 +103,16 @@ public class BuildRenderer {
 
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 18));
             textY += 30;
-            g2d.drawString(String.format("Mass: %.0f T", type.mass), textX, textY);
+            g2d.drawString(String.format("Masse: %.0f T", type.mass), textX, textY);
 
             if (type.fuelCapacity > 0) {
                 textY += 25;
-                g2d.drawString(String.format("Fuel: %.0f T", type.fuelCapacity), textX, textY);
+                g2d.drawString(String.format("Treibstoff: %.0f T", type.fuelCapacity), textX, textY);
             }
 
             if (type.thrust > 0) {
                 textY += 25;
-                g2d.drawString(String.format("Thrust: %.1f kN", type.thrust / 1000), textX, textY);
+                g2d.drawString(String.format("Schub: %.1f kN", type.thrust / 1000), textX, textY);
                 textY += 25;
                 g2d.drawString(String.format("Isp: %d s", type.specificImpulse), textX, textY);
             }
@@ -121,7 +121,7 @@ public class BuildRenderer {
             if (model.currentLevel < type.requiredLevel) {
                 g2d.setColor(Color.RED);
                 g2d.setFont(new Font("SansSerif", Font.BOLD, 20));
-                g2d.drawString("LOCKED (Lvl " + type.requiredLevel + ")", textX, textY + 30);
+                g2d.drawString("GESPERRT (Lvl. " + type.requiredLevel + ")", textX, textY + 30);
             }
 
             yOffset += itemHeight + 40;
@@ -133,14 +133,20 @@ public class BuildRenderer {
 
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 30));
-        g2d.drawString("Shop", shopX + 120, 50);
+        g2d.drawString("Markt", shopX + 120, 50);
         g2d.setFont(new Font("SansSerif", Font.PLAIN, 24));
-        g2d.drawString("Money: $" + model.playerMoney + "k", shopX + 20, 90);
+        g2d.drawString("Geld: €" + model.playerMoney + "k", shopX + 20, 90);
 
         double totalDryMass = 0;
         for (RocketPart part : model.rocket) totalDryMass += part.type.mass;
+        // Gesamtmasse berechnen
+        model.currentTotalMass = 0;
+        for (RocketPart p : model.rocket) {
+            model.currentTotalMass += p.type.mass + p.currentFuel;
+        }
         g2d.setFont(new Font("SansSerif", Font.PLAIN, 20));
-        g2d.drawString(String.format("Dry Mass: %.0f T", totalDryMass), shopX + 20, 120);
+        g2d.drawString(String.format("Trockenmasse: %.0f T", totalDryMass), shopX + 20, 120);
+        g2d.drawString(String.format("Gesamtmasse: %.0f T", model.currentTotalMass), shopX + 20, 140);
     }
 
     private void drawBuildUI(Graphics2D g2d) {
@@ -154,7 +160,7 @@ public class BuildRenderer {
         g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
 
         String levelStr = "Level: " + model.currentLevel;
-        String scoreStr = String.format("Highscore: %.0f m", model.highScoreAltitude);
+        String scoreStr = String.format("Höchstpunktzahl: %.0f m", model.highScoreAltitude);
 
         // Etwas Abstand vom rechten Rand
         int marginX = 20;
@@ -173,7 +179,7 @@ public class BuildRenderer {
         g2d.fill(launchButton);
         g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 30));
-        g2d.drawString("To Launchpad", launchButton.x + 35, launchButton.y + 45);
+        g2d.drawString("Zum Startplatz", launchButton.x + 35, launchButton.y + 45);
 
         // Info button
         g2d.setColor(Color.LIGHT_GRAY);
@@ -185,7 +191,7 @@ public class BuildRenderer {
         g2d.setColor(Color.WHITE);
         g2d.draw(autoDetachCheckbox);
         g2d.setFont(new Font("SansSerif", Font.PLAIN, 22));
-        g2d.drawString("Auto-Detach", autoDetachCheckbox.x + 50, autoDetachCheckbox.y + 26);
+        g2d.drawString("Auto-Stufenabtrennung", autoDetachCheckbox.x + 50, autoDetachCheckbox.y + 26);
         if (model.autoDetachEnabled) {
             g2d.setColor(Color.GREEN);
             g2d.setStroke(new BasicStroke(4));

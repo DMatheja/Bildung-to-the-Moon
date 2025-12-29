@@ -29,20 +29,20 @@ public class Launcher {
         JPanel buttons = new JPanel();
         buttons.setLayout(new GridLayout(3, 1, 8, 8));
 
-        JButton startBtn = new JButton("Start Game");
+        JButton startBtn = new JButton("Spiel starten");
         startBtn.addActionListener(this::onStart);
         buttons.add(startBtn);
 
-        JButton settingsBtn = new JButton("Settings");
+        JButton settingsBtn = new JButton("Einstellungen");
         settingsBtn.addActionListener(this::onSettings);
         buttons.add(settingsBtn);
 
-        JButton quitBtn = new JButton("Quit");
+        JButton quitBtn = new JButton("Beenden");
         quitBtn.addActionListener(e -> onQuit());
         buttons.add(quitBtn);
 
         panel.add(buttons, BorderLayout.CENTER);
-        JLabel hint = new JLabel("Your ads could be here!", JLabel.CENTER);
+        JLabel hint = new JLabel("Hier könnte ihre Werbung stehen", JLabel.CENTER);
         hint.setFont(hint.getFont().deriveFont(11f));
         panel.add(hint, BorderLayout.SOUTH);
         return panel;
@@ -54,7 +54,7 @@ public class Launcher {
     }
 
     private void onSettings(ActionEvent e) {
-        JOptionPane.showMessageDialog(frame, "Settings not yet implemented.", "Settings", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(frame, "Einstellungen noch nicht implementiert", "Einstellungen", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void onQuit() {
