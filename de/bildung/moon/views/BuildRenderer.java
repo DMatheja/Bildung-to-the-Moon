@@ -99,7 +99,7 @@ public class BuildRenderer {
             int textY = itemY + 35;
 
             g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
-            g2d.drawString(type.name + " ($" + type.cost + "k)", textX, textY);
+            g2d.drawString(type.name + " (€" + type.cost + "k)", textX, textY);
 
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 18));
             textY += 30;
