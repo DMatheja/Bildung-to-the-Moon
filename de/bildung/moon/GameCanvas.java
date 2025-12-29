@@ -4,12 +4,11 @@ import de.bildung.moon.controller.BuildManager;
 import de.bildung.moon.controller.GameManager;
 import de.bildung.moon.controller.InputHandler;
 import de.bildung.moon.model.ButtonType;
+import static de.bildung.moon.model.GameConstants.*;
 import de.bildung.moon.model.GameModel;
 import de.bildung.moon.model.GameState;
 import de.bildung.moon.views.BuildRenderer;
 import de.bildung.moon.views.SimulationRenderer;
-
-import static de.bildung.moon.model.GameConstants.*;
 import java.awt.*;
 import javax.swing.*;
 
@@ -105,6 +104,9 @@ public class GameCanvas extends JPanel {
         simRenderer.detachButton.setBounds(15, h - 80, 220, 50);
         simRenderer.selfDestructButton.setBounds(15, h - 140, 220, 50);
     }
+        model.launchButton.setBounds(uiStartX + 30, h - 80, 290, 60);
+        model.autoDetachCheckbox.setBounds(uiStartX + 30, h - 125, 290, 35);
+        model.infoButton.setBounds(uiStartX + 30, h - 200, 290, 50);
 
     public ButtonType getButton(Point clickPos) {
         if(buildRenderer.launchButton.contains(clickPos) && model.currentState == GameState.BUILDING){

@@ -98,15 +98,15 @@ public class BuildRenderer {
             int textY = itemY + 35;
 
             g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
-            g2d.drawString(type.name + " ($" + type.cost + ")", textX, textY);
+            g2d.drawString(type.name + " ($" + type.cost + "k)", textX, textY);
 
             g2d.setFont(new Font("SansSerif", Font.PLAIN, 18));
             textY += 30;
-            g2d.drawString(String.format("Mass: %.0f kg", type.mass), textX, textY);
+            g2d.drawString(String.format("Mass: %.0f T", type.mass), textX, textY);
 
             if (type.fuelCapacity > 0) {
                 textY += 25;
-                g2d.drawString(String.format("Fuel: %.0f kg", type.fuelCapacity), textX, textY);
+                g2d.drawString(String.format("Fuel: %.0f T", type.fuelCapacity), textX, textY);
             }
 
             if (type.thrust > 0) {
@@ -134,12 +134,12 @@ public class BuildRenderer {
         g2d.setFont(new Font("SansSerif", Font.BOLD, 30));
         g2d.drawString("Shop", shopX + 120, 50);
         g2d.setFont(new Font("SansSerif", Font.PLAIN, 24));
-        g2d.drawString("Money: $" + model.playerMoney, shopX + 20, 90);
+        g2d.drawString("Money: $" + model.playerMoney + "k", shopX + 20, 90);
 
         double totalDryMass = 0;
         for (RocketPart part : model.rocket) totalDryMass += part.type.mass;
         g2d.setFont(new Font("SansSerif", Font.PLAIN, 20));
-        g2d.drawString(String.format("Dry Mass: %.0f kg", totalDryMass), shopX + 20, 120);
+        g2d.drawString(String.format("Dry Mass: %.0f T", totalDryMass), shopX + 20, 120);
     }
 
     private void drawBuildUI(Graphics2D g2d) {
@@ -173,6 +173,13 @@ public class BuildRenderer {
         g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 30));
         g2d.drawString("To Launchpad", launchButton.x + 35, launchButton.y + 45);
+
+        // Info button
+        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.fill(model.infoButton);
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
+        g2d.drawString("Info", model.infoButton.x + 110, model.infoButton.y + 32);
 
         g2d.setColor(Color.WHITE);
         g2d.draw(autoDetachCheckbox);

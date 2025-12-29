@@ -2,6 +2,7 @@ package de.bildung.moon.controller;
 
 import de.bildung.moon.GameCanvas;
 import de.bildung.moon.model.ButtonType;
+import static de.bildung.moon.model.GameConstants.*;
 import de.bildung.moon.model.GameModel;
 import de.bildung.moon.model.GameState;
 import de.bildung.moon.model.PartType;
@@ -9,6 +10,8 @@ import de.bildung.moon.model.PartType;
 import static de.bildung.moon.model.GameConstants.*;
 
 import java.awt.*;
+import de.bildung.moon.views.InfoDialog;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -25,10 +28,6 @@ public class InputHandler extends MouseAdapter {
     private final BuildManager buildManager;
     private final GameManager gameManager;
     private final GameCanvas canvas; // Wird für repaint() benötigt
-
-    // --- UI & Input Status ---
-
-
 
     public InputHandler(GameModel model, BuildManager buildManager, GameManager gameManager, GameCanvas canvas) {
         this.model = model;
@@ -66,6 +65,17 @@ public class InputHandler extends MouseAdapter {
         int gridStartX = SIDE_PANEL_WIDTH;
         int gridEndX = gridStartX + GRID_WIDTH * CELL_SIZE;
         ButtonType bType = canvas.getButton(clickPos);
+
+        // Info button ist in allen Zuständen aktiv
+        if (model.infoButton.contains(clickPos)) {
+            SwingUtilities.invokeLater(() -> {
+                java.awt.Window w = SwingUtilities.getWindowAncestor(canvas);
+                new InfoDialog(w).setVisible(true);
+            });
+            canvas.repaint();
+            return;
+        }
+
         if (null != model.currentState) switch (model.currentState) {
             case BUILDING -> {
                 if (clickPos.x >= gridStartX && clickPos.x < gridEndX) {

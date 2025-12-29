@@ -1,5 +1,6 @@
 package de.bildung.moon.model;
 
+import static de.bildung.moon.model.GameConstants.*;
 import de.bildung.moon.particle.Particle;
 import java.awt.*;
 import java.util.ArrayList;
