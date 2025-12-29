@@ -229,7 +229,7 @@ public class SimulationRenderer {
             g2d.fill(backToHangarButton);
             g2d.setColor(Color.BLACK);
             g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
-            g2d.drawString("Back to Hangar", backToHangarButton.x + 50, backToHangarButton.y + 40);
+            g2d.drawString("Zurück zum Hangar", backToHangarButton.x + 50, backToHangarButton.y + 40);
         }
     }
 

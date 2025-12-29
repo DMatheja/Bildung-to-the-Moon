@@ -103,7 +103,7 @@ public class GameCanvas extends JPanel {
         simRenderer.startButton.setBounds(uiStartX + 30, h - 80, 290, 60);
         simRenderer.backToHangarButton.setBounds(uiStartX + 30, h - 150, 290, 60);
         simRenderer.detachButton.setBounds(15, h - 80, 250, 50);
-        simRenderer.selfDestructButton.setBounds(15, h - 140, 270, 50);
+        simRenderer.selfDestructButton.setBounds(15, h - 140, 300, 50);
     }
 
     public ButtonType getButton(Point clickPos) {
